@@ -88,6 +88,8 @@ void PngExporter::exportDensity(int counter, std::string prefix, float* field, i
 
 	DEV() << "Writing " << filenamePNG;
 	writePNG(filenamePNG.c_str(), rows, xRes, yRes);
+	delete[] field;
+
 }
 
 /**

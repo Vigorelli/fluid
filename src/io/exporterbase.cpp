@@ -42,7 +42,7 @@ long int ExporterBase::start(fdl::Grid& grid)
 		
 	boost::thread t1(boost::bind(&ExporterBase::write,this));
 	t1.join();
-	
+	m_grid->~TGrid();
 	m_writeMutex.unlock();
 }
 

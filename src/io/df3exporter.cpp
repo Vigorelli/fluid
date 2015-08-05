@@ -123,7 +123,7 @@ void Df3Exporter::exportDensity(int counter, std::string prefix, float* field, i
 			}
 		}
 	}
-	
+	delete[] field;
 	fclose(fptr);
 }
 
