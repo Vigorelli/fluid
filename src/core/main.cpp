@@ -198,7 +198,7 @@ int main(int argc, char **argv)
 	fdl::SceneImporter* scene = new fdl::SceneImporter();
 	//fdl::ParticleSystem* ps = new fdl::ParticleSystem();
 	//ps->init(macGrid);
-	scene->load("safepoint.xml");
+	//scene->load("safepoint.xml");
 	//	std::ofstream myfile;
 	//	myfile.open("average_densities_cg2.txt");
 	int count = 0;
