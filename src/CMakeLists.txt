@@ -34,17 +34,19 @@ endif(APPLE AND UNIX)
 set( fdl_SRCS
   core/main.cpp
   core/fluidsolver.cpp
-  core/particlesystem.cpp
+#  core/particlesystem.cpp
   io/exporterbase.cpp
   io/pngexporter.cpp
   io/df3exporter.cpp
   io/pbrtexporter.cpp
+  io/gridexporter.cpp
+  io/sceneimporter.cpp
   logger/logger.cpp
   logger/logwriter.cpp
   logger/stdiowriter.cpp
   logger/syslogwriter.cpp
-  render/glutapp.cpp
-  render/camera.cpp
+#  render/glutapp.cpp
+#  render/camera.cpp
 )
 
 #--------------------------------------------------------------------------------
