@@ -200,6 +200,6 @@ int main(int argc, char **argv)
 		pngOut->start(*macGrid);
 		pbrtOut->start(*macGrid);
 	}
-
+ricki culo
     return 0;
 }
