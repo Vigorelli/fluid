@@ -147,8 +147,9 @@ int main(int argc, char **argv)
  	       }
 	
  	       if (vm.count("input-file")) {
-				std::cout << "Input file name is: " << vm["input-file"].as< std::vector<std::string> >() << std::endl;
-				scene->load( vm["input-file"].as< std::vector<std::string> >() );
+				std::cout << "Input file name is: " << vm["input-file"].as<std::string>() << std::endl;
+				std::string input_file = vm["input-file"].as<std::string>();
+				scene->load(input_file);
 				
  	       }
 	
