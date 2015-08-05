@@ -200,10 +200,6 @@ int main(int argc, char **argv)
 		pngOut->start(*macGrid);
 		pbrtOut->start(*macGrid);
 	}
-<<<<<<< HEAD
-ricki culo jfjhfjhvhj
-=======
 
->>>>>>> parent of 714a395... First upload
     return 0;
 }
