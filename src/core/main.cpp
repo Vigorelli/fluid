@@ -183,23 +183,43 @@ int main(int argc, char **argv)
 		ERROR() << "Exception of unknown type!";
 	}
 	
-	// fdl::GlutRender::init(argc, argv);
+	//fdl::GlutRender::init(argc, argv);
 	fdl::Grid* macGrid = new fdl::Grid(grid_dims[0], grid_dims[1], grid_dims[2], dx);
+	//	static const char * pbrt = "grid_export_0015.grid";
+	//	fdl::Grid* macGrid = fdl::GridExporter::read(pbrt);
+	
 	fdl::FluidSolver* fs = new fdl::FluidSolver(macGrid);
 	fs->setCGTolerance((float)cg_tol);
 	fs->setCGMaxIter(100);
 	fdl::PngExporter* pngOut = new fdl::PngExporter(output_prefix);
-	fdl::PbrtExporter* pbrtOut = new fdl::PbrtExporter(output_prefix);
-	// fdl::Df3Exporter* exporter = new fdl::Df3Exporter();
+	fdl::GridExporter* gridOut = new fdl::GridExporter("grid_export_");
+	fdl::Df3Exporter* df3Out = new fdl::Df3Exporter(output_prefix);
+	fdl::SceneImporter* scene = new fdl::SceneImporter();
+	//fdl::ParticleSystem* ps = new fdl::ParticleSystem();
+	//ps->init(macGrid);
+	scene->load("safepoint.xml");
+	//	std::ofstream myfile;
+	//	myfile.open("average_densities_cg2.txt");
+	int count = 0;
+	float average;
 	
-	// fdl::ParticleSystem* ps = new fdl::ParticleSystem();
-	// ps->init(macGrid);
-	while(1){
-		fs->step(dt);
-		// ps->step(dt);
+	while(count<500){
+		//		fs->step(dt);
+		//	ps->step(dt);
 		pngOut->start(*macGrid);
-		pbrtOut->start(*macGrid);
+		gridOut->start(*macGrid);
+		df3Out->start(*macGrid);
+		scene->save("safepoint.xml");
+		fs->step(dt);
+		//		average = 0;
+		/*		float* densityvector = macGrid->getDensityArray();
+		 for(int i=0; i<macGrid->getNumberOfGridCells(); i++){
+			average += 	densityvector[i];
+		 }
+		 myfile<< count <<"	" << average << "\n";
+		 count++;
+		 delete [] densityvector;*/
 	}
-
-    return 0;
+	//	myfile.close();
+	return 0;
 }
