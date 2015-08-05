@@ -41,6 +41,10 @@ public:
 	~SceneImporter();
     virtual void load(const std::string &filename);
     virtual void save(const std::string &filename);
+	
+private:
+	std::string m_file;
+	int m_level;
 };
 
 }	// namespace fdl

@@ -20,11 +20,13 @@
 </scene>
 */
 
+namespace fdl {
+
 SceneImporter::SceneImporter() {}
 
 SceneImporter::~SceneImporter() {}
 
-bool SceneImporter::load(const std::string& filename)
+void SceneImporter::load(const std::string& filename)
 {
     read_xml(filename, pt);
 
@@ -33,7 +35,7 @@ bool SceneImporter::load(const std::string& filename)
     // are separated with dots (different separator may be used 
     // if keys themselves contain dots). If debug.filename key is 
     // not found, exception is thrown.
-    m_file = pt.get<std::string>("debug.filename");
+//    m_file = pt.get<std::string>("debug.filename");
 
     
     // Get debug level and store it in m_level variable. This is 
@@ -42,7 +44,7 @@ bool SceneImporter::load(const std::string& filename)
     // parameter) instead of throwing. Type of the value extracted 
     // is determined by type of second parameter, so we can simply 
     // write get(...) instead of get<int>(...).
-    m_level = pt.get("scene.log-level", 0);
+//    m_level = pt.get("scene.log-level", 0);
 
     // Iterate over debug.modules section and store all found 
     // modules in m_modules set. get_child() function returns a 
@@ -53,17 +55,17 @@ bool SceneImporter::load(const std::string& filename)
     //BOOST_FOREACH(ptree::value_type &v, pt.get_child("debug.modules"))
     //    m_modules.insert(v.second.data());
 
-	return true;
+//	return true;
 
 }
 
-bool SceneImporter::save(const std::string& filename)
+void SceneImporter::save(const std::string& filename)
 {
     // Put log filename in property tree
-    pt.put("debug.filename", m_file);
+//    pt.put("debug.filename", m_file);
 
     // Put debug level in property tree
-    pt.put("debug.level", m_level);
+//    pt.put("debug.level", m_level);
 
     // Iterate over modules in set and put them in property 
     // tree. Note that put function places new key at the
@@ -78,5 +80,7 @@ bool SceneImporter::save(const std::string& filename)
     // Write property tree to XML file
     write_xml(filename, pt);
 
-	return true;
+//	return true;
 }
+
+} //namespace fdl

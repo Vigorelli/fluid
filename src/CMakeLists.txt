@@ -38,7 +38,7 @@ set( fdl_SRCS
   io/exporterbase.cpp
   io/pngexporter.cpp
   io/df3exporter.cpp
-  io/pbrtexporter.cpp
+#  io/pbrtexporter.cpp
   io/gridexporter.cpp
   io/sceneimporter.cpp
   logger/logger.cpp

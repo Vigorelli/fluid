@@ -439,6 +439,35 @@ public:
 		}
 		return _density;
 	}
+	
+	
+	float* getVelocityXArray() const
+	{
+		float* _vel = (float*)malloc(sizeof(float) * (m_gridX+1)*(m_gridY+1)*(m_gridZ+1));
+		for (int i=0; i< (m_gridX+1)*(m_gridY+1)*(m_gridZ+1); ++i) {
+			_vel[i] = (float) m_u0[0][i];
+		}
+		return _vel;
+	}
+	
+	float* getVelocityYArray() const
+	{
+		float* _vel = (float*)malloc(sizeof(float) * (m_gridX+1)*(m_gridY+1)*(m_gridZ+1));
+		for (int i=0; i<(m_gridX+1)*(m_gridY+1)*(m_gridZ+1); ++i) {
+			_vel[i] = (float) m_u0[1][i];
+		}
+		return _vel;
+	}
+	float* getVelocityZArray() const
+	{
+		float* _vel = (float*)malloc(sizeof(float) * (m_gridX+1)*(m_gridY+1)*(m_gridZ+1));
+		for (int i=0; i<(m_gridX+1)*(m_gridY+1)*(m_gridZ+1); ++i) {
+			_vel[i] = (float) m_u0[2][i];
+		}
+		return _vel;
+	}
+	
+
 
 	/**
 	 * Samples the density field (stored at cell centers) at a point using linear interpolation.

@@ -43,14 +43,15 @@ namespace po = boost::program_options;
 #include <cmath>
 
 #include "core/common.h"
-#include "core/glutrender.h"
+//#include "core/glutrender.h"
 #include "core/fluidsolver.h"
 #include "core/particle.hpp"
 #include "core/particlesystem.h"
 #include "core/grid.hpp"
 #include "io/pngexporter.h"
 #include "io/df3exporter.h"
-#include "io/pbrtexporter.h"
+#include "io/gridexporter.h"
+#include "io/sceneimporter.h"
 #include "logger/logger.h"
 #include "logger/stdiowriter.h"
 #include "logger/syslogwriter.h"
