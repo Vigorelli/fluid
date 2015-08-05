@@ -100,6 +100,7 @@ int main(int argc, char **argv)
 	double dt = 0.1;
 	double cg_tol = pow( FLT_EPSILON, 0.5 ); 	
 	std::string output_prefix = "density_export_";
+	fdl::SceneImporter* scene = new fdl::SceneImporter();
 	
 	try {
 		int opt;
@@ -125,57 +126,61 @@ int main(int argc, char **argv)
 	        po::store(po::parse_command_line(argc, argv, desc), vm);
 	        po::notify(vm);
 	
-	        if (vm.count("help")) {
-	            std::cout << "Usage: options_description [options]" << std::endl;
-	            std::cout << desc << std::endl;
-	            return 0;
-	        }
+	       if (vm.count("help")) {
+			std::cout << "Usage: options_description [options]" << std::endl;
+			std::cout << desc << std::endl;
+			return 0;
+	       }
 	
 		if (vm.count("solver-tol")) {
 			std::cout << "The linear solver residual is: " << cg_tol << std::endl;
-        }
-
-        if (vm.count("cell-width")) {
-			dx = vm["cell-width"].as< double >();
-			std::cout << "The cell width is: " << dx << std::endl;
-        }
-
-        if (vm.count("timestep")) {
-			dt = vm["timestep"].as< double >();
-			std::cout << "The update time step is: " << dt << std::endl;
-        }
-
-        if (vm.count("input-file")) {
-			std::cout << "Input file name is: " << vm["input-file"].as< std::vector<std::string> >() << std::endl;
-        }
-
-        if (vm.count("output-name")) {
-			std::cout << "Output name is: " << vm["output-name"].as<std::string>() << std::endl;
-        }
-
-        if (vm.count("output-format")) {
-			std::cout << "Output format is: " << vm["output-format"].as<std::string>() << std::endl;
-        }
-
-        if (vm.count("verbose")) {
-			int level = vm["verbose"].as<int>();
-			std::string levelLabel = "";
-			if(level <= 0){
-				levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::INFO);
-				fdl::Logger::pushLevel(fdl::Logger::INFO);
-			}
-			if(level <= 1){
-				levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEV);
-				fdl::Logger::pushLevel(fdl::Logger::DEV);
-			}
-			if(level <= 2){
-				levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEBUG);
-				fdl::Logger::pushLevel(fdl::Logger::DEBUG);
-			}
-		
-			INFO() << "Verbose logging enabled. Level is " << levelLabel << " (" << level << ")";
-        }
+ 	       }
+	
+ 	       if (vm.count("cell-width")) {
+				dx = vm["cell-width"].as< double >();
+				std::cout << "The cell width is: " << dx << std::endl;
+ 	       }
+	
+ 	       if (vm.count("timestep")) {
+				dt = vm["timestep"].as< double >();
+				std::cout << "The update time step is: " << dt << std::endl;
+ 	       }
+	
+ 	       if (vm.count("input-file")) {
+				std::cout << "Input file name is: " << vm["input-file"].as<std::string>() << std::endl;
+				std::string input_file = vm["input-file"].as<std::string>();
+				scene->load(input_file);
+				
+ 	       }
+	
+ 	       if (vm.count("output-name")) {
+				std::cout << "Output name is: " << vm["output-name"].as<std::string>() << std::endl;
+ 	       }
+	
+ 	       if (vm.count("output-format")) {
+				std::cout << "Output format is: " << vm["output-format"].as<std::string>() << std::endl;
+ 	       }
+	
+ 	       if (vm.count("verbose")) {
+				int level = vm["verbose"].as<int>();
+				std::string levelLabel = "";
+				if(level <= 0){
+					levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::INFO);
+					fdl::Logger::pushLevel(fdl::Logger::INFO);
+				}
+				if(level <= 1){
+					levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEV);
+					fdl::Logger::pushLevel(fdl::Logger::DEV);
+				}
+				if(level <= 2){
+					levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEBUG);
+					fdl::Logger::pushLevel(fdl::Logger::DEBUG);
+				}
+			
+				INFO() << "Verbose logging enabled. Level is " << levelLabel << " (" << level << ")";
+	        }
 	}
+
 	catch(std::exception& e) {
 		ERROR() << " * error: " << e.what();
 		return 1;
@@ -195,10 +200,8 @@ int main(int argc, char **argv)
 	fdl::PngExporter* pngOut = new fdl::PngExporter(output_prefix);
 	fdl::GridExporter* gridOut = new fdl::GridExporter("grid_export_");
 	fdl::Df3Exporter* df3Out = new fdl::Df3Exporter(output_prefix);
-	fdl::SceneImporter* scene = new fdl::SceneImporter();
 	//fdl::ParticleSystem* ps = new fdl::ParticleSystem();
 	//ps->init(macGrid);
-	scene->load("safepoint.xml");
 	//	std::ofstream myfile;
 	//	myfile.open("average_densities_cg2.txt");
 	int count = 0;
