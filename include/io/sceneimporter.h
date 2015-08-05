@@ -45,6 +45,8 @@ public:
 private:
 	std::string m_file;
 	int m_level;
+	float m_dt;
+	std::string m_name;
 };
 
 }	// namespace fdl

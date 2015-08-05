@@ -36,9 +36,9 @@ void SceneImporter::load(const std::string& filename)
     // if keys themselves contain dots). If debug.filename key is 
     // not found, exception is thrown.
 //    m_file = pt.get<std::string>("debug.filename");
-
-    
-    // Get debug level and store it in m_level variable. This is 
+	m_dt = pt.get<float>("scene.settings.xmlattr.dt");
+	std::cout << "sorrate m_dt" << m_dt << std::endl;
+    // Get debug level and store it in m_level variable. This is
     // another version of get method: if debug.level key is not 
     // found, it will return default value (specified by second 
     // parameter) instead of throwing. Type of the value extracted 
