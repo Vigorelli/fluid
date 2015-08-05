@@ -87,8 +87,7 @@ void FluidSolver::setCGMaxIter(unsigned N) { maxiter_cg = N; }
  *
  * @return the max timestep float for deltaT.
  */
-float FluidSolver::computeMaxTimeStep() const
-{
+float FluidSolver::computeMaxTimeStep() const {
 	// TODO: Consider all body forces, including gravity
 	// See: Foster and Fedkiw 01
 	fdl::Vector3 g = m_gravity;
@@ -97,27 +96,33 @@ float FluidSolver::computeMaxTimeStep() const
 	g.z *= (5.0 * m_dx);
 	
 	float maxVelocity = grid->getMaximumVelocity();
+	
 	if (maxVelocity < 0.2) maxVelocity = 0.2f;
 	
-	maxVelocity += m_gravity.getSquareRoot().length();
+	//maxVelocity += m_gravity.getSquareRoot().length();
+	
+	//We suppose here you need the vector g defined in line 94. What about you?
+	//And you need to use sqrt, because getSquareRoot works on the components
+	maxVelocity += std::sqrt(g.length());
 	return (5.0*m_dx) / maxVelocity;
 }
-
-
-/**
- * This is the main function for updating the fluid system. Input of zero or less 
- * (which is the default) will trigger a call to compute the maximum time step 
- * using computeMaxTimeStep.
- *
- * @param dt delta time value to step forward
- */
-void FluidSolver::step(float dt)
-{	
+	
+	
+	/**
+	 * This is the main function for updating the fluid system. Input of zero or less
+	 * (which is the default) will trigger a call to compute the maximum time step
+	 * using computeMaxTimeStep.
+	 *
+	 * @param dt delta time value to step forward
+	 */
+void FluidSolver::step(float dt) {
 	if(dt <= 0){
 		dt = computeMaxTimeStep();
 	}else{
-		dt = std::max(dt, computeMaxTimeStep());
+		//modificato: min al posto di max
+		dt = std::min(dt, computeMaxTimeStep());
 	}
+		
 	INFO() << "FluidSolver: step ("  << dt << ") ..";
 	
 	INFO() << "  + Performing advection step ..";
