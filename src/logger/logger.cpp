@@ -20,7 +20,7 @@
 namespace fdl {
 	
 int Logger::_level = Logger::DEFAULT_REPORTING_LEVEL;
-std::vector<int> Logger::_levelStack( 1, Logger::DEFAULT_REPORTING_LEVEL );
+std::vector<int> Logger::_levelStack( 1, Logger::_level );
 std::list<LogWriter *> Logger::_registeredWriters;
 std::string Logger::_identity = "fdlLogger";
 
