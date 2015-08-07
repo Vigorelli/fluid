@@ -50,9 +50,11 @@ namespace fdl {
 		std::vector<int> GetGridDims();
 		bool GetPngOut() {return pt.get<bool>("scene.settings.png-out");}
 		bool GetDf3Out() {return pt.get<bool>("scene.settings.df3-out");}
+		bool GetGridIn() {return pt.get<bool>("scene.settings.grid-in");}
 		std::string GetOutputPrefix() {return pt.get<std::string>("scene.settings.output-prefix");}
 		std::string GetGridPrefix() {return pt.get<std::string>("scene.settings.grid-prefix");}
 		std::string GetXmlOutputPrefix() {return pt.get<std::string>("scene.settings.xml-output-prefix");}
+		std::string GridInputfile() {return pt.get<std::string>("scene.settings.grid-inputfile");}
 		double GetCGTol() {return pt.get<double>("scene.settings.solver.<xmlattr>.tolerance");}
 		int GetCGMaxIter() {return pt.get<int>("scene.settings.solver.<xmlattr>.maxIterations");}
 		int GetMaxStep() {return pt.get<int>("scene.settings.max-step");}

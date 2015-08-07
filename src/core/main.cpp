@@ -101,10 +101,11 @@ int main(int argc, char **argv)
 	double dt = 0.1;				// time infinitesimal
 	double dx = 0.01;				// space infinitesimal
 	std::vector<int> grid_dims(3, 50);		// grid number of cells (n_x, n_y, n_z)
-	bool png_out=true, df3_out=true;		// output formats
+	bool png_out=true, df3_out=true, grid_in=false;	// activating io formats
 	std::string output_prefix = "density_export_";	// output image filename prefix
 	std::string grid_prefix = "grid_export_";	// output grid filename prefix
 	std::string xml_output_prefix = "safepoint.xml";// output xml filename prefix
+	std::string grid_inputfile;			// grid input filename
 	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
 	int cg_max_iter = 100;				// conjugate gradient max iterations
 	int max_step = 1000;				// max number of fluidsolver step
@@ -171,14 +172,35 @@ int main(int argc, char **argv)
 			scene->load(input_file);
 
 			dt = scene->GetDt();
-			dx = scene->GetDx();
+			png_out = scene->GetPngOut();
+			df3_out = scene->GetDf3Out();
+			grid_in = scene->GetGridIn();
+			grid_prefix = scene->GetGridPrefix();
+			xml_output_prefix = scene->GetXmlOutputPrefix();
+			cg_tol = scene->GetCGTol();
+			cg_max_iter = scene->GetCGMaxIter();
+			max_step = scene->GetMaxStep();
+
+			if(png_out || df3_out) {
+				output_prefix = scene->GetOutputPrefix();
+			}
+
+			if(grid_in) {
+				grid_inputfile = scene->GetGridInputfile();
+			}
+			else {
+				dx = scene->GetDx();
+				grid_dims = scene->GetGridDims();
+			}
 		}
 
 		if (vm.count("output-name")) {
 			std::cout << "Output name is: " << vm["output-name"].as<std::string>() << std::endl;
+			output_prefix = vm["output-name"].as<std::string>();
 		}
 
 		if (vm.count("output-format")) {
+			//TODO: be able to distinguish between png and df3, to make true the right flag
 			std::cout << "Output format is: " << vm["output-format"].as<std::string>() << std::endl;
 		}
 

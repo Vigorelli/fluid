@@ -3,9 +3,11 @@
 		<grid x="50" y="50" z="50" />
 		<png-out>true</png-out>
 		<df3-out>true</df3-out>
+		<grid-in>false</grid-in>
 		<output-prefix>density_export_</output-prefix>
 		<grid-prefix>grid_export_</output-prefix>
 		<xml-output-prefix>safepoint.xml</xml-output-prefix>
+		<grid-inputfile></grid-inputfile>
 		<solver tolerance="0.00001" maxIterations="100" />
 		<max-step>1000</max-step>
 	</settings>
@@ -14,5 +16,4 @@
 		<size w="1.0" h="1.0" d="1.0" />
 	</source>
 	<field />
-    <log-level>2</log-level>
 </scene>
