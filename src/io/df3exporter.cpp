@@ -108,12 +108,13 @@ void Df3Exporter::exportDensity(int counter, std::string prefix, float* field, i
 	fputc(zRes >> 8,fptr);
 	fputc(zRes & 0xff,fptr);
 	
-	range = max - min;
+	range = max - 0.05;
 	for (k=0;k<zRes;k++) {
 		for (j=0;j<yRes;j++) {
 			for (i=0;i<xRes;i++) {
 				index = (k * yRes * xRes) + (j * xRes) + i;
-				value = 255 * field[index];// - min)/range;
+				value = 255 * field[index];
+		//		value = 255 * ((field[index] - 0.05)/range);
 				fputc((int)value, fptr);
 				
 				if(m_isCancelled){

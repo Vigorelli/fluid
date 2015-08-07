@@ -47,7 +47,7 @@ namespace fdl {
 		int GetGridX() {return pt.get<int>("scene.settings.grid.<xmlattr>.x");}
 		int GetGridY() {return pt.get<int>("scene.settings.grid.<xmlattr>.y");}
 		int GetGridZ() {return pt.get<int>("scene.settings.grid.<xmlattr>.z");}
-		int* GetGridDims();
+		std::vector<int> GetGridDims();
 		bool GetPngOut() {return pt.get<bool>("scene.settings.png-out");}
 		bool GetDf3Out() {return pt.get<bool>("scene.settings.df3-out");}
 		std::string GetOutputPrefix() {return pt.get<std::string>("scene.settings.output-prefix");}

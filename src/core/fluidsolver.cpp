@@ -157,7 +157,7 @@ void FluidSolver::step(float dt) {
 			}
 			int dist = -std::max((int) std::sqrt(tmp)-1, 0);
 			grid->setDensity(dist + x + y * m_gridX + z * m_slice, cell);
-			grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = 0.0 * m_gravity.y;
+			grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = 0.1 * m_gravity.y;
 		}
 	}
 

@@ -84,7 +84,7 @@ void SceneImporter::save(const std::string& filename)
 //	return true;
 }
 
-std::vector<int> GetGridDims(){
+std::vector<int> SceneImporter::GetGridDims(){
 	std::vector<int> m_grid_dims(3);
 	m_grid_dims[0] = GetGridX();
 	m_grid_dims[1] = GetGridY();

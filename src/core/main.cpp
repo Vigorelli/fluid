@@ -28,7 +28,7 @@
 
 #include <boost/program_options.hpp>
 #include <boost/thread.hpp>
-#include <boost/signal.hpp>
+#include <boost/signals2.hpp>
 #include <boost/bind.hpp>
 namespace po = boost::program_options;
 
@@ -101,10 +101,10 @@ int main(int argc, char **argv)
 	double dt = 0.1;				// time infinitesimal
 	double dx = 0.01;				// space infinitesimal
 	std::vector<int> grid_dims(3, 50);		// grid number of cells (n_x, n_y, n_z)
-	bool png_out=TRUE, df3_out=TRUE;		// output formats
+	bool png_out=true, df3_out=true;		// output formats
 	std::string output_prefix = "density_export_";	// output image filename prefix
 	std::string grid_prefix = "grid_export_";	// output grid filename prefix
-	std:.string xml_output_prefix = "safepoint.xml";// output xml filename prefix
+	std::string xml_output_prefix = "safepoint.xml";// output xml filename prefix
 	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
 	int cg_max_iter = 100;				// conjugate gradient max iterations
 	int max_step = 1000;				// max number of fluidsolver step
@@ -170,7 +170,8 @@ int main(int argc, char **argv)
 			std::string input_file = vm["input-file"].as<std::string>();
 			scene->load(input_file);
 
-			
+			dt = scene->GetDt();
+			dx = scene->GetDx();
 		}
 
 		if (vm.count("output-name")) {
@@ -216,7 +217,7 @@ int main(int argc, char **argv)
 	
 	fdl::FluidSolver* fs = new fdl::FluidSolver(macGrid);
 	fs->setCGTolerance((float)cg_tol);
-	fs->setCGMaxIter(100);
+	fs->setCGMaxIter(cg_max_iter);
 	fdl::PngExporter* pngOut = new fdl::PngExporter(output_prefix);
 	fdl::GridExporter* gridOut = new fdl::GridExporter(grid_prefix);
 	fdl::Df3Exporter* df3Out = new fdl::Df3Exporter(output_prefix);
