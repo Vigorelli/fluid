@@ -105,6 +105,7 @@ int main(int argc, char **argv)
 	std:.string xml_output_prefix = "safepoint.xml";// output xml filename prefix
 	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
 	int cg_max_iter = 100;				// conjugate gradient max iterations
+	int step_max = 1000;				// max number of fluidsolver step
 
 	/*SOURCE DEFAULT VALUES
 	TODO: method for source in fluidsolver (read from xml)
@@ -161,6 +162,8 @@ int main(int argc, char **argv)
 			std::cout << "Input file name is: " << vm["input-file"].as<std::string>() << std::endl;
 			std::string input_file = vm["input-file"].as<std::string>();
 			scene->load(input_file);
+
+			
 		}
 
 		if (vm.count("output-name")) {
@@ -214,10 +217,11 @@ int main(int argc, char **argv)
 	//ps->init(macGrid);
 	//	std::ofstream myfile;
 	//	myfile.open("average_densities_cg2.txt");
-	int count = 0;
-	float average;
+
+
+//	float average;
 	
-	while(count<500){
+	for(int count=0; count<step_max; count++){
 		//		fs->step(dt);
 		//	ps->step(dt);
 		pngOut->start(*macGrid);
@@ -235,5 +239,8 @@ int main(int argc, char **argv)
 		 delete [] densityvector;*/
 	}
 	//	myfile.close();
+
+	delete scene;
+
 	return 0;
 }
