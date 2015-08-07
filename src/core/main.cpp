@@ -95,11 +95,22 @@ int main(int argc, char **argv)
 	fdl::Logger::registerWriter(stdlogger);
 	fdl::Logger::setLevel(fdl::Logger::WARN | fdl::Logger::ERROR);
 	
-	std::vector<int> grid_dims(3, 50);	// grid dimensions
-	double dx = 0.01;
-	double dt = 0.1;
-	double cg_tol = pow( FLT_EPSILON, 0.5 ); 	
-	std::string output_prefix = "density_export_";
+	//DEFAULT VALUES (same order of example.xml)
+	double dt = 0.1;				// time infinitesimal
+	double dx = 0.01;				// space infinitesimal
+	std::vector<int> grid_dims(3, 50);		// grid number of cells (n_x, n_y, n_z)
+	bool png_out=TRUE, df3_out=TRUE;		// output formats
+	std::string output_prefix = "density_export_";	// output image filename prefix
+	std::string grid_prefix = "grid_export_";	// output grid filename prefix
+	std:.string xml_output_prefix = "safepoint.xml";// output xml filename prefix
+	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
+	int cg_max_iter = 100;				// conjugate gradient max iterations
+
+	/*SOURCE DEFAULT VALUES
+	
+	*/
+
+	//SCENE IMPORTER (to read xml scene files)
 	fdl::SceneImporter* scene = new fdl::SceneImporter();
 	
 	try {
@@ -198,7 +209,7 @@ int main(int argc, char **argv)
 	fs->setCGTolerance((float)cg_tol);
 	fs->setCGMaxIter(100);
 	fdl::PngExporter* pngOut = new fdl::PngExporter(output_prefix);
-	fdl::GridExporter* gridOut = new fdl::GridExporter("grid_export_");
+	fdl::GridExporter* gridOut = new fdl::GridExporter(grid_prefix);
 	fdl::Df3Exporter* df3Out = new fdl::Df3Exporter(output_prefix);
 	//fdl::ParticleSystem* ps = new fdl::ParticleSystem();
 	//ps->init(macGrid);
@@ -213,7 +224,7 @@ int main(int argc, char **argv)
 		pngOut->start(*macGrid);
 		gridOut->start(*macGrid);
 		df3Out->start(*macGrid);
-		scene->save("safepoint.xml");
+		scene->save(xml_output_prefix);
 		fs->step(dt);
 		//		average = 0;
 		/*		float* densityvector = macGrid->getDensityArray();
