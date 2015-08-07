@@ -54,7 +54,7 @@ namespace fdl {
 		std::string GetOutputPrefix() {return pt.get<std::string>("scene.settings.output-prefix");}
 		std::string GetGridPrefix() {return pt.get<std::string>("scene.settings.grid-prefix");}
 		std::string GetXmlOutputPrefix() {return pt.get<std::string>("scene.settings.xml-output-prefix");}
-		std::string GridInputfile() {return pt.get<std::string>("scene.settings.grid-inputfile");}
+		std::string GetGridInputfile() {return pt.get<std::string>("scene.settings.grid-inputfile");}
 		double GetCGTol() {return pt.get<double>("scene.settings.solver.<xmlattr>.tolerance");}
 		int GetCGMaxIter() {return pt.get<int>("scene.settings.solver.<xmlattr>.maxIterations");}
 		int GetMaxStep() {return pt.get<int>("scene.settings.max-step");}
