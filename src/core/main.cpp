@@ -105,9 +105,10 @@ int main(int argc, char **argv)
 	std:.string xml_output_prefix = "safepoint.xml";// output xml filename prefix
 	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
 	int cg_max_iter = 100;				// conjugate gradient max iterations
+	int step_max = 1000;				// max number of fluidsolver step
 
 	/*SOURCE DEFAULT VALUES
-	
+	TODO: method for source in fluidsolver (read from xml)
 	*/
 
 	//SCENE IMPORTER (to read xml scene files)
@@ -136,60 +137,61 @@ int main(int argc, char **argv)
 	        po::variables_map vm;        
 	        po::store(po::parse_command_line(argc, argv, desc), vm);
 	        po::notify(vm);
-	
-	       if (vm.count("help")) {
+
+		if (vm.count("help")) {
 			std::cout << "Usage: options_description [options]" << std::endl;
 			std::cout << desc << std::endl;
 			return 0;
-	       }
+		}
 	
 		if (vm.count("solver-tol")) {
 			std::cout << "The linear solver residual is: " << cg_tol << std::endl;
- 	       }
-	
- 	       if (vm.count("cell-width")) {
-				dx = vm["cell-width"].as< double >();
-				std::cout << "The cell width is: " << dx << std::endl;
- 	       }
-	
- 	       if (vm.count("timestep")) {
-				dt = vm["timestep"].as< double >();
-				std::cout << "The update time step is: " << dt << std::endl;
- 	       }
-	
- 	       if (vm.count("input-file")) {
-				std::cout << "Input file name is: " << vm["input-file"].as<std::string>() << std::endl;
-				std::string input_file = vm["input-file"].as<std::string>();
-				scene->load(input_file);
-				
- 	       }
-	
- 	       if (vm.count("output-name")) {
-				std::cout << "Output name is: " << vm["output-name"].as<std::string>() << std::endl;
- 	       }
-	
- 	       if (vm.count("output-format")) {
-				std::cout << "Output format is: " << vm["output-format"].as<std::string>() << std::endl;
- 	       }
-	
- 	       if (vm.count("verbose")) {
-				int level = vm["verbose"].as<int>();
-				std::string levelLabel = "";
-				if(level <= 0){
-					levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::INFO);
-					fdl::Logger::pushLevel(fdl::Logger::INFO);
-				}
-				if(level <= 1){
-					levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEV);
-					fdl::Logger::pushLevel(fdl::Logger::DEV);
-				}
-				if(level <= 2){
-					levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEBUG);
-					fdl::Logger::pushLevel(fdl::Logger::DEBUG);
-				}
+		}
+
+		if (vm.count("cell-width")) {
+			dx = vm["cell-width"].as< double >();
+			std::cout << "The cell width is: " << dx << std::endl;
+		}
+
+		if (vm.count("timestep")) {
+			dt = vm["timestep"].as< double >();
+			std::cout << "The update time step is: " << dt << std::endl;
+		}
+
+		if (vm.count("input-file")) {
+			std::cout << "Input file name is: " << vm["input-file"].as<std::string>() << std::endl;
+			std::string input_file = vm["input-file"].as<std::string>();
+			scene->load(input_file);
+
 			
-				INFO() << "Verbose logging enabled. Level is " << levelLabel << " (" << level << ")";
-	        }
+		}
+
+		if (vm.count("output-name")) {
+			std::cout << "Output name is: " << vm["output-name"].as<std::string>() << std::endl;
+		}
+
+		if (vm.count("output-format")) {
+			std::cout << "Output format is: " << vm["output-format"].as<std::string>() << std::endl;
+		}
+
+		if (vm.count("verbose")) {
+			int level = vm["verbose"].as<int>();
+			std::string levelLabel = "";
+			if(level <= 0){
+				levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::INFO);
+				fdl::Logger::pushLevel(fdl::Logger::INFO);
+			}
+			if(level <= 1){
+				levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEV);
+				fdl::Logger::pushLevel(fdl::Logger::DEV);
+			}
+			if(level <= 2){
+				levelLabel = fdl::Logger::loggerLevelAsString(fdl::Logger::DEBUG);
+				fdl::Logger::pushLevel(fdl::Logger::DEBUG);
+			}
+
+			INFO() << "Verbose logging enabled. Level is " << levelLabel << " (" << level << ")";
+		}
 	}
 
 	catch(std::exception& e) {
@@ -215,10 +217,11 @@ int main(int argc, char **argv)
 	//ps->init(macGrid);
 	//	std::ofstream myfile;
 	//	myfile.open("average_densities_cg2.txt");
-	int count = 0;
-	float average;
+
+
+//	float average;
 	
-	while(count<500){
+	for(int count=0; count<step_max; count++){
 		//		fs->step(dt);
 		//	ps->step(dt);
 		pngOut->start(*macGrid);
@@ -236,5 +239,8 @@ int main(int argc, char **argv)
 		 delete [] densityvector;*/
 	}
 	//	myfile.close();
+
+	delete scene;
+
 	return 0;
 }
