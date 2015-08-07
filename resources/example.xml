@@ -2,11 +2,12 @@
 	<settings dt="0.1" dx="0.01">
 		<grid x="50" y="50" z="50" />
 		<png-out>TRUE</png-out>
-		<df3-out>TRUE</df3out>
+		<df3-out>TRUE</df3-out>
 		<output-prefix>density_export_</output-prefix>
 		<grid-prefix>grid_export_</output-prefix>
 		<xml-output-prefix>safepoint.xml</xml-output-prefix>
 		<solver tolerance="0.00001" maxIterations="100" />
+		<max-step>1000</max-step>
 	</settings>
 	<source>
 		<pos x="1.0" y="0.0" z="0.5" />
