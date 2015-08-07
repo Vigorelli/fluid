@@ -1,8 +1,11 @@
 <scene>
 	<settings dt="0.1" dx="0.01">
 		<grid x="50" y="50" z="50" />
-		<output-format>PNG</output-format>
-		<output-name>density_export_</output-name>
+		<png-out>TRUE</png-out>
+		<df3-out>TRUE</df3out>
+		<output-prefix>density_export_</output-prefix>
+		<grid-prefix>grid_export_</output-prefix>
+		<xml-output-prefix>safepoint.xml</xml-output-prefix>
 		<solver tolerance="0.00001" maxIterations="100" />
 	</settings>
 	<source>
