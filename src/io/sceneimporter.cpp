@@ -36,8 +36,8 @@ void SceneImporter::load(const std::string& filename)
     // if keys themselves contain dots). If debug.filename key is 
     // not found, exception is thrown.
 //    m_file = pt.get<std::string>("debug.filename");
-	m_dt = pt.get<float>("scene.settings.<xmlattr>.dt");
-	std::cout << "sorrate m_dt " << m_dt << std::endl;
+//	m_dt = pt.get<float>("scene.settings.<xmlattr>.dt");
+//	std::cout << "sorrate m_dt " << m_dt << std::endl;
 
     // Get debug level and store it in m_level variable. This is
     // another version of get method: if debug.level key is not 
@@ -82,6 +82,15 @@ void SceneImporter::save(const std::string& filename)
     write_xml(filename, pt);
 
 //	return true;
+}
+
+std::vector<int> GetGridDims(){
+	std::vector<int> m_grid_dims(3);
+	m_grid_dims[0] = GetGridX();
+	m_grid_dims[1] = GetGridY();
+	m_grid_dims[2] = GetGridZ();
+
+	return m_grid_dims;
 }
 
 } //namespace fdl

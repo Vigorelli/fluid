@@ -35,19 +35,34 @@
 
 namespace fdl {
 
-class SceneImporter : public ImporterBase {
-public:
-	SceneImporter();
-	~SceneImporter();
-    virtual void load(const std::string &filename);
-    virtual void save(const std::string &filename);
-	
-private:
-	std::string m_file;
-	int m_level;
-	float m_dt;
-	std::string m_name;
-};
+	class SceneImporter : public ImporterBase {
+	public:
+		SceneImporter();
+		~SceneImporter();
+		virtual void load(const std::string &filename);
+		virtual void save(const std::string &filename);
+
+		double GetDt() {return pt.get<double>("scene.settings.<xmlattr>.dt");}
+		double GetDx() {return pt.get<double>("scene.settings.<xmlattr>.dx");}
+		int GetGridX() {return pt.get<int>("scene.settings.grid.<xmlattr>.x");}
+		int GetGridY() {return pt.get<int>("scene.settings.grid.<xmlattr>.y");}
+		int GetGridZ() {return pt.get<int>("scene.settings.grid.<xmlattr>.z");}
+		int* GetGridDims();
+		bool GetPngOut() {return pt.get<bool>("scene.settings.png-out");}
+		bool GetDf3Out() {return pt.get<bool>("scene.settings.df3-out");}
+		std::string GetOutputPrefix() {return pt.get<std::string>("scene.settings.output-prefix");}
+		std::string GetGridPrefix() {return pt.get<std::string>("scene.settings.grid-prefix");}
+		std::string GetXmlOutputPrefix() {return pt.get<std::string>("scene.settings.xml-output-prefix");}
+		double GetCGTol() {return pt.get<double>("scene.settings.solver.<xmlattr>.tolerance");}
+		int GetCGMaxIter() {return pt.get<int>("scene.settings.solver.<xmlattr>.maxIterations");}
+		int GetMaxStep() {return pt.get<int>("scene.settings.max-step");}
+
+	private:
+		std::string m_file;
+		int m_level;
+		float m_dt;
+		std::string m_name;
+	};
 
 }	// namespace fdl
 

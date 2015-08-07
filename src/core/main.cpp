@@ -95,7 +95,9 @@ int main(int argc, char **argv)
 	fdl::Logger::registerWriter(stdlogger);
 	fdl::Logger::setLevel(fdl::Logger::WARN | fdl::Logger::ERROR);
 	
-	//DEFAULT VALUES (same order of example.xml)
+	/**
+	 * Default values (same order of example.xml)
+	 */
 	double dt = 0.1;				// time infinitesimal
 	double dx = 0.01;				// space infinitesimal
 	std::vector<int> grid_dims(3, 50);		// grid number of cells (n_x, n_y, n_z)
@@ -105,26 +107,31 @@ int main(int argc, char **argv)
 	std:.string xml_output_prefix = "safepoint.xml";// output xml filename prefix
 	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
 	int cg_max_iter = 100;				// conjugate gradient max iterations
-	int step_max = 1000;				// max number of fluidsolver step
+	int max_step = 1000;				// max number of fluidsolver step
 
 	/*SOURCE DEFAULT VALUES
 	TODO: method for source in fluidsolver (read from xml)
 	*/
 
-	//SCENE IMPORTER (to read xml scene files)
+	/**
+	 * Scene importer to read xml input file (if needed) and to write xml output file
+	 */
 	fdl::SceneImporter* scene = new fdl::SceneImporter();
-	
+
+	/**
+	 * Options for ./fdl
+	 */
 	try {
 		int opt;
 		po::options_description desc("Allowed options");
 		desc.add_options()
-		    ("help,h", "produce help message")
-		    ("input-file,I", po::value<std::string>(), "input scene file")
-		    ("output-format,O", po::value<std::string>(), "output format")
+			("help,h", "produce help message")
+			("input-file,I", po::value<std::string>(), "input scene file")
+			("output-format,O", po::value<std::string>(), "output format")
 			("output-name,N", po::value<std::string>(&output_prefix), "output file name PREFIX")
-		    ("grid,G", po::value< std::vector<int> >(&grid_dims)->multitoken(), "[ X Y Z ]")
+			("grid,G", po::value< std::vector<int> >(&grid_dims)->multitoken(), "[ X Y Z ]")
 			("solver,L", po::value< std::vector<std::string> >(), "[ PCG | CG | Jacobi | ocl_cg | ocl_jacobi ]")
-		    ("solver-tol", po::value<double>(&cg_tol), "linear solver convergence tolerance")
+			("solver-tol", po::value<double>(&cg_tol), "linear solver convergence tolerance")
 			("integration,A", po::value< std::vector<std::string> >(), "[ euler | verlet | runge-kutta2 | runge-kutta4 ]")
 			("interp", po::value< std::vector<std::string> >(), "[ lerp | hat | gaussian | catmull-rom ]")
 			("timestep,T", po::value<double>(), "timestep update.")
@@ -221,7 +228,7 @@ int main(int argc, char **argv)
 
 //	float average;
 	
-	for(int count=0; count<step_max; count++){
+	for(int count=0; count<max_step; count++){
 		//		fs->step(dt);
 		//	ps->step(dt);
 		pngOut->start(*macGrid);
