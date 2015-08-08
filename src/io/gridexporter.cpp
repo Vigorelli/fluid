@@ -58,8 +58,8 @@ void GridExporter::write()
 
 
 /**
- * Exports a 3D density field as a PBRT file. A <a href="http://www.cse.ohio-state.edu/~parent/classes/782/labs/PBRT/pbrtscene.html">PBRT format</a>
- * is used by the <a href="http://www.pbrt.org">PBRT renderer.</a>
+ * Exports a 3D density field as a grid file, in which are writed in the first line the value of dx, in the second line the number of cells in each direction, and
+ * below the matrix with densities and velocity components
  *
  * @param counter number extension for the output file
  * @param prefix string filename to write to
@@ -166,7 +166,7 @@ void GridExporter::exportDensity(int counter, std::string prefix, float* field, 
 	delete [] velz;
 }
 //Reads the file above (previously decompressed)
-Grid* GridExporter::read(const char * filenameGrid)
+Grid* GridExporter::load(std::string filenameGrid)
 {
 	
 	DEV() << "Reading " << filenameGrid;
@@ -175,7 +175,7 @@ Grid* GridExporter::read(const char * filenameGrid)
 	fdl::Grid* grid;
 
 	std::ifstream file;
-	file.open(filenameGrid);
+	file.open(filenameGrid.c_str());
 
 	if (file == NULL) {
 		ERROR() << " Couldn't read file " << filenameGrid << "!";

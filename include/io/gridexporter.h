@@ -35,7 +35,7 @@ namespace fdl {
 		GridExporter(std::string prefix="grid_export_");
 		~GridExporter();
 		// virtual void write(const fdl::Grid& grid);
-		static Grid* read(const char *);
+		static Grid* load(std::string);
 	private:
 		virtual void write();
 		
