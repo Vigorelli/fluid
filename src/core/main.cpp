@@ -182,6 +182,9 @@ int main(int argc, char **argv)
 			std::string input_file = vm["input-file"].as<std::string>();
 			scene->load(input_file);
 
+			/**
+	 		* General settings from xml inputfile
+	 		*/
 			dt = scene->GetDt();
 			png_out = scene->GetPngOut();
 			df3_out = scene->GetDf3Out();
