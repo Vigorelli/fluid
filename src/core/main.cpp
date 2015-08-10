@@ -281,7 +281,6 @@ int main(int argc, char **argv)
 	/**
 	 * Other classes not finished yet
 	 */
-
 	/**	
 	 * fdl::GlutRender::init(argc, argv);
 	 * fdl::ParticleSystem* ps = new fdl::ParticleSystem();
@@ -290,17 +289,49 @@ int main(int argc, char **argv)
 
 
 	/**
+	 * Writing in the property tree the settings used in program
+	 */
+	scene->PutDt(dt);
+	scene->PutDx(dx);
+	scene->PutGridDims(grid_dims);
+	scene->PutPngOut(png_out);
+	scene->PutDf3Out(df3_out);
+	scene->PutGridIn(grid_in);
+	scene->PutOutputPrefix(output_prefix);
+	scene->PutGridPrefix(grid_prefix);
+	scene->PutXmlOutputPrefix(xml_output_prefix);
+	scene->PutGridInputfile(grid_inputfile);
+	scene->PutCGTol(cg_tol);
+	scene->PutCGMaxIter(cg_max_iter);
+	scene->PutMaxStep(max_step);
+
+
+	/**
+	 * Exporting xml format
+	 */
+	scene->save(xml_output_prefix);
+
+
+	/**
 	 * Calling the function step of fluidsolver, to evolve the system, max_step times
-	 * Exporting in .grid, .xml, .png (if enabled), .df3 (if enabled)
+	 * Exporting in .grid, .png (if enabled), .df3 (if enabled)
 	 */
 	for(int count=0; count<max_step; count++){
 
+		/**
+		 * Exporting png format
+		 */
 		if(png_out) pngOut->start(*macGrid);
 
+		/**
+		 * Exporting df3 format
+		 */
 		if(df3_out) df3Out->start(*macGrid);
 
+		/**
+		 * Exporting grid format
+		 */
 		gridOut->start(*macGrid);
-		scene->save(xml_output_prefix);
 
 		fs->step(dt);
 	}
