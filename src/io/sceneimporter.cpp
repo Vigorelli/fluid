@@ -93,4 +93,10 @@ std::vector<int> SceneImporter::GetGridDims(){
 	return m_grid_dims;
 }
 
+void SceneImporter::PutGridDims(std::vector<int> grid_dims){
+	pt.put("scene.settings.grid.<xmlattr>.x", grid_dims[0]);
+	pt.put("scene.settings.grid.<xmlattr>.y", grid_dims[1]);
+	pt.put("scene.settings.grid.<xmlattr>.z", grid_dims[2]);
+}
+
 } //namespace fdl

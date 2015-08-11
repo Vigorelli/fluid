@@ -81,12 +81,19 @@ std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
  */
 int main(int argc, char **argv)
 {	
+	/**
+	 * Opening message
+	 */
 	fdl::Logger out;
 	// figure out how to automate this output...
 	std::cout << "FDL version " << TARGET_VERSION_MAJOR << "." << TARGET_VERSION_MINOR << " of " << __DATE__ << " at " << __TIME__ << std::endl;
 	std::cout << "The source code to FDL is covered by the GNU GPL." << std::endl;
 	std::cout << "See the LICENSE file for the conditions of the license." << std::endl;
-	
+
+
+	/**
+	 * Logger declaration and settings
+	 */
 	fdl::SyslogWriter* syslogger = new fdl::SyslogWriter();
 	fdl::StdOutWriter* stdlogger = new fdl::StdOutWriter();
 	stdlogger->setFormat("%H:%M:%S");
@@ -94,29 +101,34 @@ int main(int argc, char **argv)
 	// fdl::Logger::RegisterWriter(syslogger);
 	fdl::Logger::registerWriter(stdlogger);
 	fdl::Logger::setLevel(fdl::Logger::WARN | fdl::Logger::ERROR);
-	
+
+
 	/**
 	 * Default values (same order of example.xml)
 	 */
 	double dt = 0.1;				// time infinitesimal
 	double dx = 0.01;				// space infinitesimal
 	std::vector<int> grid_dims(3, 50);		// grid number of cells (n_x, n_y, n_z)
-	bool png_out=true, df3_out=true;		// output formats
+	bool png_out=true, df3_out=true, grid_in=false;	// activating io formats
 	std::string output_prefix = "density_export_";	// output image filename prefix
 	std::string grid_prefix = "grid_export_";	// output grid filename prefix
 	std::string xml_output_prefix = "safepoint.xml";// output xml filename prefix
+	std::string grid_inputfile;			// grid input filename
 	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
 	int cg_max_iter = 100;				// conjugate gradient max iterations
 	int max_step = 1000;				// max number of fluidsolver step
 
+
 	/*SOURCE DEFAULT VALUES
-	TODO: method for source in fluidsolver (read from xml)
+	TODO: class for source somewhere (read from xml)
 	*/
+
 
 	/**
 	 * Scene importer to read xml input file (if needed) and to write xml output file
 	 */
 	fdl::SceneImporter* scene = new fdl::SceneImporter();
+
 
 	/**
 	 * Options for ./fdl
@@ -170,15 +182,39 @@ int main(int argc, char **argv)
 			std::string input_file = vm["input-file"].as<std::string>();
 			scene->load(input_file);
 
+			/**
+	 		* General settings from xml inputfile
+	 		*/
 			dt = scene->GetDt();
-			dx = scene->GetDx();
+			png_out = scene->GetPngOut();
+			df3_out = scene->GetDf3Out();
+			grid_in = scene->GetGridIn();
+			grid_prefix = scene->GetGridPrefix();
+			xml_output_prefix = scene->GetXmlOutputPrefix();
+			cg_tol = scene->GetCGTol();
+			cg_max_iter = scene->GetCGMaxIter();
+			max_step = scene->GetMaxStep();
+
+			if(png_out || df3_out) {
+				output_prefix = scene->GetOutputPrefix();
+			}
+
+			if(grid_in) {
+				grid_inputfile = scene->GetGridInputfile();
+			}
+			else {
+				dx = scene->GetDx();
+				grid_dims = scene->GetGridDims();
+			}
 		}
 
 		if (vm.count("output-name")) {
 			std::cout << "Output name is: " << vm["output-name"].as<std::string>() << std::endl;
+			output_prefix = vm["output-name"].as<std::string>();
 		}
 
 		if (vm.count("output-format")) {
+			//TODO: distinguish between png and df3, to make true the right flag
 			std::cout << "Output format is: " << vm["output-format"].as<std::string>() << std::endl;
 		}
 
@@ -209,46 +245,108 @@ int main(int argc, char **argv)
 	catch(...) {
 		ERROR() << "Exception of unknown type!";
 	}
-	
-	//fdl::GlutRender::init(argc, argv);
-	fdl::Grid* macGrid = new fdl::Grid(grid_dims[0], grid_dims[1], grid_dims[2], dx);
-	//	static const char * pbrt = "grid_export_0015.grid";
-	//	fdl::Grid* macGrid = fdl::GridExporter::read(pbrt);
-	
+
+
+	/**
+	 * Exporters construction (export format: .grid, .png, .df3)
+	 */
+	fdl::GridExporter* gridOut = new fdl::GridExporter(grid_prefix);
+	fdl::PngExporter* pngOut = new fdl::PngExporter(output_prefix);
+	fdl::Df3Exporter* df3Out = new fdl::Df3Exporter(output_prefix);
+
+
+	/**
+	 * Grid construction
+	 */
+	fdl::Grid* macGrid;
+
+	if(!grid_in){
+		macGrid = new fdl::Grid(grid_dims[0], grid_dims[1], grid_dims[2], dx);
+	}
+
+	else {
+		macGrid = fdl::GridExporter::load(grid_inputfile); //input file must be like .grid (see example in resources directory)
+	}
+
+
+	/**
+	 * Fluidsolver construction
+	 */
 	fdl::FluidSolver* fs = new fdl::FluidSolver(macGrid);
 	fs->setCGTolerance((float)cg_tol);
 	fs->setCGMaxIter(cg_max_iter);
-	fdl::PngExporter* pngOut = new fdl::PngExporter(output_prefix);
-	fdl::GridExporter* gridOut = new fdl::GridExporter(grid_prefix);
-	fdl::Df3Exporter* df3Out = new fdl::Df3Exporter(output_prefix);
-	//fdl::ParticleSystem* ps = new fdl::ParticleSystem();
-	//ps->init(macGrid);
-	//	std::ofstream myfile;
-	//	myfile.open("average_densities_cg2.txt");
+	// we can set the constant force here?
 
 
-//	float average;
-	
+	/**
+	 * Other classes not finished yet
+	 */
+	/**	
+	 * fdl::GlutRender::init(argc, argv);
+	 * fdl::ParticleSystem* ps = new fdl::ParticleSystem();
+	 * ps->init(macGrid);
+	 */
+
+
+	/**
+	 * Writing in the property tree the settings used in program
+	 */
+	scene->PutDt(dt);
+	scene->PutDx(dx);
+	scene->PutGridDims(grid_dims);
+	scene->PutPngOut(png_out);
+	scene->PutDf3Out(df3_out);
+	scene->PutGridIn(grid_in);
+	scene->PutOutputPrefix(output_prefix);
+	scene->PutGridPrefix(grid_prefix);
+	scene->PutXmlOutputPrefix(xml_output_prefix);
+	scene->PutGridInputfile(grid_inputfile);
+	scene->PutCGTol(cg_tol);
+	scene->PutCGMaxIter(cg_max_iter);
+	scene->PutMaxStep(max_step);
+
+
+	/**
+	 * Exporting xml format
+	 */
+	scene->save(xml_output_prefix);
+
+
+	/**
+	 * Calling the function step of fluidsolver, to evolve the system, max_step times
+	 * Exporting in .grid, .png (if enabled), .df3 (if enabled)
+	 */
 	for(int count=0; count<max_step; count++){
-		//		fs->step(dt);
-		//	ps->step(dt);
-		pngOut->start(*macGrid);
-		gridOut->start(*macGrid);
-		df3Out->start(*macGrid);
-		scene->save(xml_output_prefix);
-		fs->step(dt);
-		//		average = 0;
-		/*		float* densityvector = macGrid->getDensityArray();
-		 for(int i=0; i<macGrid->getNumberOfGridCells(); i++){
-			average += 	densityvector[i];
-		 }
-		 myfile<< count <<"	" << average << "\n";
-		 count++;
-		 delete [] densityvector;*/
-	}
-	//	myfile.close();
 
+		/**
+		 * Exporting png format
+		 */
+		if(png_out) pngOut->start(*macGrid);
+
+		/**
+		 * Exporting df3 format
+		 */
+		if(df3_out) df3Out->start(*macGrid);
+
+		/**
+		 * Exporting grid format
+		 */
+		gridOut->start(*macGrid);
+
+		fs->step(dt);
+	}
+
+
+	/**
+	 * Deleting all pointers
+	 */
 	delete scene;
+	free(pngOut);
+	delete df3Out;
+	delete fs;
+	free(macGrid);
+	delete syslogger;
+//	free(stdlogger);	// when this is uncommented, we have segmentation fault. Why?
 
 	return 0;
 }
