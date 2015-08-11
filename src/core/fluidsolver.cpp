@@ -134,33 +134,49 @@ void FluidSolver::step(float dt) {
 	INFO() << "  + Performing projection step ..";
 	project(dt);
 
+//
+//	// add density
+	Vector pos(3);
+	pos[0]= 5;
+	pos[1]= 3;
+	pos[2]= 8;
+	Vector size(3);
+	size[0]= 4;
+	size[1]= 7;
+	size[2]= 2;
+	Vector force(3);
+	force[0]= 5;
+	force[1]= 4;
+	force[2]= 2;
+	
+	addDensity(pos, size, force, dt);
 
-	// add density
-	float targetTemp = 28.5;
-	float rateDensity = 100.0f;
-	INFO() << "  + Updating densities ..";
-	int rad = 4;
-	Sample cell(dt*rateDensity,targetTemp,0);
-//	for (int z=0; z<m_gridZ; ++z) {
-//		int pos = z * m_slice;
-//		int velIdx = z * m_velSlice;
-//		for (int y=0; y<m_gridY; ++y, ++velIdx) {
-//			for (int x=0; x<m_gridX; ++x, ++velIdx, ++pos) {
-	for (int i=-rad; i<=rad; ++i) {
-		for (int j=-rad; j<=rad; ++j) {
-			int x = (int) m_gridX/2 + j;
-			int y = (int) m_gridY/2 + i;
-			int z = (int) m_gridZ/2;
-			float tmp = rad*rad - i*i - j*j;
-			if (tmp < 0){
-				continue;
-			}
-			int dist = -std::max((int) std::sqrt(tmp)-1, 0);
-			grid->setDensity(dist + x + y * m_gridX + z * m_slice, cell);
-			grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = 0.1 * m_gravity.y;
-		}
-	}
 
+//	float targetTemp = 28.5;
+//	float rateDensity = 100.0f;
+//	INFO() << "  + Updating densities ..";
+//	int rad = 4;
+//	Sample cell(dt*rateDensity,targetTemp,0);
+////	for (int z=0; z<m_gridZ; ++z) {
+////		int pos = z * m_slice;
+////		int velIdx = z * m_velSlice;
+////		for (int y=0; y<m_gridY; ++y, ++velIdx) {
+////			for (int x=0; x<m_gridX; ++x, ++velIdx, ++pos) {
+//	for (int i=-rad; i<=rad; ++i) {
+//		for (int j=-rad; j<=rad; ++j) {
+//			int x = (int) m_gridX/2 + j;
+//			int y = (int) m_gridY/2 + i;
+//			int z = (int) m_gridZ/2;
+//			float tmp = rad*rad - i*i - j*j;
+//			if (tmp < 0){
+//				continue;
+//			}
+//			int dist = -std::max((int) std::sqrt(tmp)-1, 0);
+//			grid->setDensity(dist + x + y * m_gridX + z * m_slice, cell);
+//			grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = 0.1 * m_gravity.y;
+//		}
+//	}
+//
 	// apply forces to velocity field
 	INFO() << "  + Adding forces ..";
 	for (int z=0; z<m_gridZ; ++z) {
@@ -178,6 +194,44 @@ void FluidSolver::step(float dt) {
 	
 	m_time += dt;
 }
+
+/**
+ * Adds density source (with dimensions and position)
+ *
+ *
+ * @param pos position of source
+ * @param size size in the x, y and z directions
+ * @param force intensity and direction of initial force
+ */
+
+void FluidSolver::addDensity(Vector& pos, Vector& size, Vector& force, float dt){
+	float targetTemp = 28.5;
+	float rateDensity = 100.0f;
+	INFO() << "  + Updating densities ..";
+	Sample cell(dt*rateDensity,targetTemp,0);
+
+	for (int k=-size[2]; k<=size[2]; ++k) {			// z size component
+		for (int i=-size[1]; i<=size[1]; ++i) {		// y size component
+			for (int j=-size[0]; j<=size[0]; ++j) {	// x size component
+				int x = (int) pos[0] + j;			// x position component
+				int y = (int) pos[1] + i;			// y position component
+				int z = (int) pos[2] + k;			// z position component
+				float tmp = 1 - i*i/(size[1]*size[1]) - j*j/(size[0]*size[0]) - k*k/(size[2]*size[2]);
+				if (tmp < 0){
+					continue;
+				}
+				int dist = -std::max((int) std::sqrt(tmp)-1, 0);
+				grid->setDensity(dist + x + y * m_gridX + z * m_slice, cell);
+				grid->getForce(0)[dist + x + y * (m_gridX+1) + z * m_velSlice] = force[0];
+				grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = force[1];
+				grid->getForce(2)[dist + x + y * (m_gridX+1) + z * m_velSlice] = force[2];
+			}
+		}
+	}
+}
+	
+
+
 
 /**
  * Computes and applies all body forces to the system. Currently this includes vorticity

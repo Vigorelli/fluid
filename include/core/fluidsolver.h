@@ -41,6 +41,7 @@ public:
 	
 	void step(float dt=0);
 	void project(float dt);
+	void addDensity (Vector& pos, Vector& size, Vector& force, float dt);
 	void applyForces(float dt);
 	void advect(float dt);
 	void diffuse(float dt, float rate=0.25f);
