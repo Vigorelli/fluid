@@ -41,7 +41,7 @@ public:
 	
 	void step(float dt=0);
 	void project(float dt);
-	void addDensity (Vector& pos, Vector& size, Vector& force, float dt);
+	void addDensity(float dt);
 	void applyForces(float dt);
 	void advect(float dt);
 	void diffuse(float dt, float rate=0.25f);
@@ -50,6 +50,12 @@ public:
 	void setCGTolerance(float tol); 
 	void setCGMaxIter(unsigned N);
 	
+	void setSourceSize(fdl::Vector3f& );
+	void setSourcePos(fdl::Vector3f& );
+	void setSourceForce(fdl::Vector3f& );
+	
+	void setGravity(fdl::Vector3f&);
+
 	const Vector& getCurlMagnitude() const { return m_curlMagnitude; }
 	const Vector& getDivergence() const { return m_divergence; }
 	const Vector& getPressure() const { return m_pressure; }
@@ -91,7 +97,16 @@ private:
 	unsigned maxiter_cg;
 	
 	/* Gravity vector */
-	Vector3 m_gravity;
+	fdl::Vector3f m_gravity;
+
+	/* Source size */
+	fdl::Vector3f m_source_size;
+
+	/* Source position */
+	fdl::Vector3f m_source_pos;
+
+	/* Source initial force */
+	fdl::Vector3f m_source_force;
 
 	/* Grid resolution */
 	int m_gridX;

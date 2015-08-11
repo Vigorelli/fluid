@@ -118,11 +118,16 @@ int main(int argc, char **argv)
 	int cg_max_iter = 100;				// conjugate gradient max iterations
 	int max_step = 1000;				// max number of fluidsolver step
 
-
 	/*SOURCE DEFAULT VALUES
-	TODO: class for source somewhere (read from xml)
-	*/
+	 TODO: class for source somewhere (read from xml)
+	 */
+	fdl::Vector3f sourcePos = fdl::Vector3f(0.0, 0.0, 0.0);	//source center position
+	fdl::Vector3f sourceSize = fdl::Vector3f(4.0, 4.0, 4.0);	//source size
+	fdl::Vector3f sourceForce = fdl::Vector3f(0.0, 2.0, 0.0);	//source size
 
+	/*FIELD DEFAULT VALUE
+	 */
+	fdl::Vector3f gravity = fdl::Vector3f(0.0, -9.8, 0.0);	//global force
 
 	/**
 	 * Scene importer to read xml input file (if needed) and to write xml output file
@@ -275,8 +280,11 @@ int main(int argc, char **argv)
 	fdl::FluidSolver* fs = new fdl::FluidSolver(macGrid);
 	fs->setCGTolerance((float)cg_tol);
 	fs->setCGMaxIter(cg_max_iter);
-	// we can set the constant force here?
-
+	//source and gravity parameters:
+	fs->setSourceSize(sourceSize);
+	fs->setSourcePos(sourcePos);
+	fs->setSourceForce(sourceForce);
+	fs->setGravity(gravity);
 
 	/**
 	 * Other classes not finished yet

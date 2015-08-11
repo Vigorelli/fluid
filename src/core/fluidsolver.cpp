@@ -35,9 +35,6 @@ FluidSolver::FluidSolver(Grid* _grid)
 	m_dx = grid->getVoxelSize();
 	m_time = 0.0f;
 	
-	// define global forces
-	m_gravity = Vector3(0.0, -9.8, 0.0);
-	
 	// allocate memory
 	m_tempW.resize(m_numPoints);
 	m_tempP.resize(m_numPoints);
@@ -63,6 +60,15 @@ FluidSolver::FluidSolver(Grid* _grid)
 	// initialize CG stopping criterion
 	setCGTolerance( sqrt( FLT_EPSILON ) );
 	
+	//source parameters
+//	setSourceSize(fdl::Vector3f(4.0, 4.0, 4.0));
+//	setSourcePos(fdl::Vector3f(0.0, 0.0, 0.0));
+//	setSourceForce(fdl::Vector3f(0.0, 2.0, 0.0));
+	
+	// define global forces
+//	setGravity(fdl::Vector3f(0.0, -9.8, 0.0));
+	
+	
 }
 
 
@@ -80,7 +86,19 @@ void FluidSolver::setCGTolerance(float tol) { tol_cg = tol; }
  * Sets the maximum number of iterations for the conjugate gradients solver(s).
  */
 void FluidSolver::setCGMaxIter(unsigned N) { maxiter_cg = N; }
+
+/**
+ * Set density source parameters: position and size.
+ */
+void FluidSolver::setSourceSize(fdl::Vector3f& size){ m_source_size = size; }
+void FluidSolver::setSourcePos(fdl::Vector3f& pos){ m_source_pos = pos; }
+void FluidSolver::setSourceForce(fdl::Vector3f& force){ m_source_force = force; }
 	
+/**
+ * Sets gravity force (direction and intensity).
+ */
+void FluidSolver::setGravity(fdl::Vector3f& gravity){ m_gravity = gravity; }
+
 /**
  * Uses the formulation of the maximum timestep from Foster and Fedkiw '01.<br/>
  * See: <a href="http://physbam.stanford.edu/~fedkiw/papers/stanford2001-02.pdf">Nick Foster Ronald Fedkiw. Practical Animation of Liquids. SIGGRAPH, pages 23-30, 2001.</a>
@@ -90,7 +108,7 @@ void FluidSolver::setCGMaxIter(unsigned N) { maxiter_cg = N; }
 float FluidSolver::computeMaxTimeStep() const {
 	// TODO: Consider all body forces, including gravity
 	// See: Foster and Fedkiw 01
-	fdl::Vector3 g = m_gravity;
+	fdl::Vector3f g = m_gravity;
 	g.x *= (5.0 * m_dx);
 	g.y *= (5.0 * m_dx);
 	g.z *= (5.0 * m_dx);
@@ -134,49 +152,10 @@ void FluidSolver::step(float dt) {
 	INFO() << "  + Performing projection step ..";
 	project(dt);
 
-//
-//	// add density
-	Vector pos(3);
-	pos[0]= 5;
-	pos[1]= 3;
-	pos[2]= 8;
-	Vector size(3);
-	size[0]= 4;
-	size[1]= 7;
-	size[2]= 2;
-	Vector force(3);
-	force[0]= 5;
-	force[1]= 4;
-	force[2]= 2;
-	
-	addDensity(pos, size, force, dt);
 
+	// add density
+	addDensity(dt);
 
-//	float targetTemp = 28.5;
-//	float rateDensity = 100.0f;
-//	INFO() << "  + Updating densities ..";
-//	int rad = 4;
-//	Sample cell(dt*rateDensity,targetTemp,0);
-////	for (int z=0; z<m_gridZ; ++z) {
-////		int pos = z * m_slice;
-////		int velIdx = z * m_velSlice;
-////		for (int y=0; y<m_gridY; ++y, ++velIdx) {
-////			for (int x=0; x<m_gridX; ++x, ++velIdx, ++pos) {
-//	for (int i=-rad; i<=rad; ++i) {
-//		for (int j=-rad; j<=rad; ++j) {
-//			int x = (int) m_gridX/2 + j;
-//			int y = (int) m_gridY/2 + i;
-//			int z = (int) m_gridZ/2;
-//			float tmp = rad*rad - i*i - j*j;
-//			if (tmp < 0){
-//				continue;
-//			}
-//			int dist = -std::max((int) std::sqrt(tmp)-1, 0);
-//			grid->setDensity(dist + x + y * m_gridX + z * m_slice, cell);
-//			grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = 0.1 * m_gravity.y;
-//		}
-//	}
-//
 	// apply forces to velocity field
 	INFO() << "  + Adding forces ..";
 	for (int z=0; z<m_gridZ; ++z) {
@@ -199,32 +178,34 @@ void FluidSolver::step(float dt) {
  * Adds density source (with dimensions and position)
  *
  *
- * @param pos position of source
- * @param size size in the x, y and z directions
- * @param force intensity and direction of initial force
+ * @param pos: position of source
+ * @param size: size in the x, y and z directions
+ * @param force: intensity and direction of initial force
  */
 
-void FluidSolver::addDensity(Vector& pos, Vector& size, Vector& force, float dt){
+void FluidSolver::addDensity(float dt){
 	float targetTemp = 28.5;
 	float rateDensity = 100.0f;
 	INFO() << "  + Updating densities ..";
 	Sample cell(dt*rateDensity,targetTemp,0);
 
-	for (int k=-size[2]; k<=size[2]; ++k) {			// z size component
-		for (int i=-size[1]; i<=size[1]; ++i) {		// y size component
-			for (int j=-size[0]; j<=size[0]; ++j) {	// x size component
-				int x = (int) pos[0] + j;			// x position component
-				int y = (int) pos[1] + i;			// y position component
-				int z = (int) pos[2] + k;			// z position component
-				float tmp = 1 - i*i/(size[1]*size[1]) - j*j/(size[0]*size[0]) - k*k/(size[2]*size[2]);
+	for (int k=-m_source_size.z; k<=m_source_size.z; ++k) {			// z size component
+		for (int i=-m_source_size.y; i<=m_source_size.y; ++i) {		// y size component
+			for (int j=-m_source_size.x; j<=m_source_size.x; ++j) {	// x size component
+				int x = (int) m_gridX/2 + m_source_pos.x + j;			// x position component
+				int y = (int) m_gridY/2 + m_source_pos.y + i;			// y position component
+				int z = (int) m_gridZ/2 + m_source_pos.z + k;			// z position component
+				float tmp = 1 - i*i/(m_source_size.y*m_source_size.y)
+								- j*j/(m_source_size.x*m_source_size.x)
+								- k*k/(m_source_size.z*m_source_size.z);
 				if (tmp < 0){
 					continue;
 				}
 				int dist = -std::max((int) std::sqrt(tmp)-1, 0);
 				grid->setDensity(dist + x + y * m_gridX + z * m_slice, cell);
-				grid->getForce(0)[dist + x + y * (m_gridX+1) + z * m_velSlice] = force[0];
-				grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = force[1];
-				grid->getForce(2)[dist + x + y * (m_gridX+1) + z * m_velSlice] = force[2];
+				grid->getForce(0)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.x;	//x initial force
+				grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.y;	//y initial force
+				grid->getForce(2)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.z;	//z initial force
 			}
 		}
 	}
@@ -294,8 +275,9 @@ void FluidSolver::applyForces(float dt)
 
 	// Add the buoyancy force 
 	float ambient = 0;
-	float a = 0.0625f*0.5f;
-	float b = 0.025f;
+		//a and b "scaled" over g default (9.8), so we can use them with a generic gravity
+	float a = 0.0625f*0.5f/9.8;
+	float b = 0.025f/9.8;
 	for (int z=0; z<m_gridZ; ++z) {
 		int pos = z * m_slice;
 		int velIdx = z * m_velSlice;
@@ -303,18 +285,22 @@ void FluidSolver::applyForces(float dt)
 			for (int x=0; x<m_gridX; ++x, ++velIdx, ++pos) {
 				if (grid->isSolid(pos))
 					continue;
-
-				const Sample top = grid->getDensity((x+0.5f)*m_dx, y*m_dx, (z+0.5f)*m_dx);
-
+				
+				const Sample topX = grid->getDensity(x*m_dx, (y+0.5f)*m_dx, (z+0.5f)*m_dx);
+				const Sample topY = grid->getDensity((x+0.5f)*m_dx, y*m_dx, (z+0.5f)*m_dx);
+				const Sample topZ = grid->getDensity((x+0.5f)*m_dx, (y+0.5f)*m_dx, z*m_dx);
+				
 				if (x != 0 && !grid->isSolid(pos-1)) 
+					grid->getForce(0)[velIdx] += (-a*topX.density + b*(topX.temperature - ambient))*m_gravity.x;
 					grid->getForce(0)[velIdx] += (m_vorticityConfinementForce[pos].x + m_vorticityConfinementForce[pos-1].x) * 0.5f;
 
 				if (y!= 0 && !grid->isSolid(pos-m_gridX)) {
-					grid->getForce(1)[velIdx] -= -a*top.density + b*(top.temperature - ambient);
+					grid->getForce(1)[velIdx] += (-a*topY.density + b*(topY.temperature - ambient))*m_gravity.y;
 					grid->getForce(1)[velIdx] += (m_vorticityConfinementForce[pos].y + m_vorticityConfinementForce[pos-m_gridX].y) * 0.5f;
 				}
 
 				if (z != 0 && !grid->isSolid(pos-m_slice)) 
+					grid->getForce(2)[velIdx] += (-a*topZ.density + b*(topZ.temperature - ambient))*m_gravity.z;
 					grid->getForce(2)[velIdx] += (m_vorticityConfinementForce[pos].z + m_vorticityConfinementForce[pos-m_slice].z) * 0.5f;
 			}
 		}
