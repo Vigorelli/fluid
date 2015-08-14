@@ -12,8 +12,9 @@
 		<max-step>1000</max-step>
 	</settings>
 	<source>
-		<pos x="1.0" y="0.0" z="0.5" />
-		<size w="1.0" h="1.0" d="1.0" />
+		<pos x="0.0" y="0.0" z="0.0" />
+		<size w="4.0" h="4.0" d="4.0" />
+		<force x="0.0" y="2.0" z="0.0" />
 	</source>
-	<field />
+	<field x="0.0" y="-9.8" z="0.0" />
 </scene>

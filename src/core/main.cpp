@@ -118,14 +118,15 @@ int main(int argc, char **argv)
 	int cg_max_iter = 100;				// conjugate gradient max iterations
 	int max_step = 1000;				// max number of fluidsolver step
 
-	/*SOURCE DEFAULT VALUES
-	 TODO: class for source somewhere (read from xml)
+	/**
+	 * Source default value
 	 */
-	fdl::Vector3f sourcePos = fdl::Vector3f(0.0, 0.0, 0.0);	//source center position
-	fdl::Vector3f sourceSize = fdl::Vector3f(4.0, 4.0, 4.0);	//source size
-	fdl::Vector3f sourceForce = fdl::Vector3f(0.0, 2.0, 0.0);	//source size
+	fdl::Vector3f source_pos = fdl::Vector3f(0.0, 0.0, 0.0);	//source center position
+	fdl::Vector3f source_size = fdl::Vector3f(4.0, 4.0, 4.0);	//source size
+	fdl::Vector3f source_force = fdl::Vector3f(0.0, 2.0, 0.0);	//source size
 
-	/*FIELD DEFAULT VALUE
+	/**
+	 * Field default value
 	 */
 	fdl::Vector3f gravity = fdl::Vector3f(0.0, -9.8, 0.0);	//global force
 
@@ -211,6 +212,19 @@ int main(int argc, char **argv)
 				dx = scene->GetDx();
 				grid_dims = scene->GetGridDims();
 			}
+
+			/**
+			 * Source settings from xml inputfile
+			 */
+			source_size = scene->GetSourceSize();
+			source_pos = scene->GetSourcePos();
+			source_force = scene->GetSourceForce();
+
+			/**
+			 * Field settings from xml inputfile
+			 */
+			gravity = scene->GetField();
+
 		}
 
 		if (vm.count("output-name")) {
@@ -281,9 +295,9 @@ int main(int argc, char **argv)
 	fs->setCGTolerance((float)cg_tol);
 	fs->setCGMaxIter(cg_max_iter);
 	//source and gravity parameters:
-	fs->setSourceSize(sourceSize);
-	fs->setSourcePos(sourcePos);
-	fs->setSourceForce(sourceForce);
+	fs->setSourceSize(source_size);
+	fs->setSourcePos(source_pos);
+	fs->setSourceForce(source_force);
 	fs->setGravity(gravity);
 
 	/**

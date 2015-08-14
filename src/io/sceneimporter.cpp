@@ -99,4 +99,36 @@ void SceneImporter::PutGridDims(std::vector<int> grid_dims){
 	pt.put("scene.settings.grid.<xmlattr>.z", grid_dims[2]);
 }
 
+fdl::Vector3f SceneImporter::GetSourceSize(){
+	fdl::Vector3f source_size;
+	source_size[0]=pt.get<int>("scene.source.size.<xmlattr>.w");
+	source_size[1]=pt.get<int>("scene.source.size.<xmlattr>.h");
+	source_size[2]=pt.get<int>("scene.source.size.<xmlattr>.d");
+	return source_size;
+}
+
+fdl::Vector3f SceneImporter::GetSourcePos(){
+	fdl::Vector3f source_pos;
+	source_pos[0]=pt.get<int>("scene.source.pos.<xmlattr>.x");
+	source_pos[1]=pt.get<int>("scene.source.pos.<xmlattr>.y");
+	source_pos[2]=pt.get<int>("scene.source.pos.<xmlattr>.z");
+	return source_pos;
+}
+
+fdl::Vector3f SceneImporter::GetSourceForce(){
+	fdl::Vector3f source_force;
+	source_force[0]=pt.get<int>("scene.source.force.<xmlattr>.x");
+	source_force[1]=pt.get<int>("scene.source.force.<xmlattr>.y");
+	source_force[2]=pt.get<int>("scene.source.force.<xmlattr>.z");
+	return source_force;
+}
+
+fdl::Vector3f SceneImporter::GetField(){
+	fdl::Vector3f field;
+	field[0]=pt.get<int>("scene.field.<xmlattr>.x");
+	field[1]=pt.get<int>("scene.field.<xmlattr>.y");
+	field[2]=pt.get<int>("scene.field.<xmlattr>.z");
+	return field;
+}
+
 } //namespace fdl

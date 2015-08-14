@@ -32,6 +32,7 @@
 
 #include "core/common.h"
 #include "io/importerbase.h"
+#include "core/vector.hpp"
 
 namespace fdl {
 
@@ -61,6 +62,10 @@ namespace fdl {
 		double GetCGTol() {return pt.get<double>("scene.settings.solver.<xmlattr>.tolerance");}
 		int GetCGMaxIter() {return pt.get<int>("scene.settings.solver.<xmlattr>.maxIterations");}
 		int GetMaxStep() {return pt.get<int>("scene.settings.max-step");}
+		fdl::Vector3f GetSourceSize();
+		fdl::Vector3f GetSourcePos();
+		fdl::Vector3f GetSourceForce();
+		fdl::Vector3f GetField();
 
 		/**
 		 * Xml export functions
