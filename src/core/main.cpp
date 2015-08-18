@@ -326,6 +326,10 @@ int main(int argc, char **argv)
 	scene->PutCGTol(cg_tol);
 	scene->PutCGMaxIter(cg_max_iter);
 	scene->PutMaxStep(max_step);
+	scene->PutSourcePos(source_pos);
+	scene->PutSourceSize(source_size);
+	scene->PutSourceForce(source_force);
+	scene->PutField(gravity);
 
 
 	/**

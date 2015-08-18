@@ -83,6 +83,10 @@ namespace fdl {
 		void PutCGTol(double cg_tol) {pt.put("scene.settings.solver.<xmlattr>.tolerance", cg_tol);}
 		void PutCGMaxIter(int cg_max_iter) {pt.put("scene.settings.solver.<xmlattr>.maxIterations", cg_max_iter);}
 		void PutMaxStep(int max_step) {pt.put("scene.settings.max-step", max_step);}
+		void PutSourceSize(fdl::Vector3f);
+		void PutSourcePos(fdl::Vector3f);
+		void PutSourceForce(fdl::Vector3f);
+		void PutField(fdl::Vector3f);
 
 	private:
 		std::string m_file;
