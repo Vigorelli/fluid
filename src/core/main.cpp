@@ -301,7 +301,6 @@ int main(int argc, char **argv)
 		fs->setSourcePos(source_pos);
 		fs->setSourceForce(source_force);
 	}
-	else {std::cout << "ATTENZIONE: sorgente troppo grande!" << std::endl;}
 	fs->setGravity(gravity);
 
 	/**
