@@ -78,31 +78,10 @@ void GridExporter::exportDensity(int counter, std::string prefix, float* field, 
 	std::string filenameGrid = prefix + number + std::string(".grid.gz");
 	DEV() << "Writing " << filenameGrid;
 
-	//float* field = new float[xRes * yRes * zRes];
-/*	float maxDensVal = fabs(field[0]);
-	float targetNorm = 0.5;
-	for(int i = 0; i < xRes * yRes * zRes; i++) {
-		if(fabs(field[i])>maxDensVal) maxDensVal = fabs(field[i]);
-		//field[i] = 0.0;
-	}*/
-	//use maxDensVal for normalization:
-/*	if(maxDensVal>0.0) {
-		for (int i = 0; i < xRes * yRes * zRes; i++) {
-			field[i] = fabs(field[i]) / maxDensVal * targetNorm;
-		}
-	}
-*/
 	std::fstream fout;
 	fout.open(filenameGrid.c_str(), std::ios::out);
-	//Set density resolution (not spatial!):
-/*	int maxRes = (xRes > yRes) ? xRes : yRes;
-	maxRes = (maxRes > zRes) ? maxRes : zRes;
 
-	const float xSize = 1.0 / (float)maxRes * (float)xRes;
-	const float ySize = 1.0 / (float)maxRes * (float)yRes;
-	const float zSize = 1.0 / (float)maxRes * (float)zRes;
-*/
-	gzFile file;
+    gzFile file;
 	file = gzopen(filenameGrid.c_str(), "wb1");
 	if (file == NULL) {
 		ERROR() << " Couldn't write file " << filenameGrid << "!";
@@ -110,10 +89,9 @@ void GridExporter::exportDensity(int counter, std::string prefix, float* field, 
 	}
 
 	// write file
-//	gzprintf(file, "Volume \"volumegrid\" \n");
 	gzprintf(file, "%f\n", dx);
-	gzprintf(file, "%i %i %i \n", xSize, ySize, zSize);
-//	gzprintf(file, " \"float density\" [ \n");
+	gzprintf(file, "%i %i %i \n \n", xSize, ySize, zSize);
+
 	for(int i = 0; i < xSize * ySize * zSize; i++){
 		gzprintf(file, "%f ", field[i]);
 		
@@ -124,7 +102,7 @@ void GridExporter::exportDensity(int counter, std::string prefix, float* field, 
 		}
 	}
 	gzprintf(file, " \n \n");
-//	gzprintf(file, " \"float velocity x\" [ \n");
+
 	 for(int i = 0; i < (xSize+1) * (ySize+1) * (zSize+1); i++){
 		gzprintf(file, "%f ", velx[i]);
 		if(m_isCancelled){
@@ -135,7 +113,6 @@ void GridExporter::exportDensity(int counter, std::string prefix, float* field, 
 	}
 	gzprintf(file, " \n \n");
 
-//	gzprintf(file, " \"float velocity y\" [ \n");
 	 for(int i = 0; i < (xSize+1) * (ySize+1) * (zSize+1); i++){
 		gzprintf(file, "%f ", vely[i]);
 		
@@ -147,7 +124,6 @@ void GridExporter::exportDensity(int counter, std::string prefix, float* field, 
 	}
 	gzprintf(file, " \n \n");
 	
-//	gzprintf(file, " \"float velocity z\" [ \n");
 	for(int i = 0; i < (xSize+1) * (ySize+1) * (zSize+1); i++){
 		gzprintf(file, "%f ", velz[i]);
 		
@@ -157,7 +133,6 @@ void GridExporter::exportDensity(int counter, std::string prefix, float* field, 
 			return;
 		}
 	}
-	gzprintf(file, " \n \n");
 	
 	gzclose(file);
 	delete [] field;
@@ -172,7 +147,7 @@ Grid* GridExporter::load(std::string filenameGrid)
 	DEV() << "Reading " << filenameGrid;
 	
 	
-	fdl::Grid* grid;
+	fdl::Grid* grid = NULL;
 
 	std::ifstream file;
 	file.open(filenameGrid.c_str());
