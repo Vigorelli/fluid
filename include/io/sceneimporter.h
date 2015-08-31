@@ -88,11 +88,6 @@ namespace fdl {
 		void PutSourceForce(fdl::Vector3f);
 		void PutField(fdl::Vector3f);
 
-	private:
-		std::string m_file;
-		int m_level;
-		float m_dt;
-		std::string m_name;
 	};
 
 }	// namespace fdl
