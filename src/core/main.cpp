@@ -122,8 +122,8 @@ int main(int argc, char **argv)
 	 * Source default value
 	 */
 	fdl::Vector3f source_pos = fdl::Vector3f(0.0, 0.0, 0.0);	//source center position
-	fdl::Vector3f source_size = fdl::Vector3f(4.0, 4.0, 4.0);	//source size
-	fdl::Vector3f source_force = fdl::Vector3f(0.0, 2.0, 0.0);	//source size
+	fdl::Vector3f source_size = fdl::Vector3f(0.0, 0.0, 0.0);	//source size
+	fdl::Vector3f source_force = fdl::Vector3f(0.0, 0.0, 0.0);	//source size
 
 	/**
 	 * Field default value
@@ -294,10 +294,14 @@ int main(int argc, char **argv)
 	fdl::FluidSolver* fs = new fdl::FluidSolver(macGrid);
 	fs->setCGTolerance((float)cg_tol);
 	fs->setCGMaxIter(cg_max_iter);
+
 	//source and gravity parameters:
-	fs->setSourceSize(source_size);
-	fs->setSourcePos(source_pos);
-	fs->setSourceForce(source_force);
+	if(fs->checkSource(source_size, source_pos)) {
+		fs->setSourceSize(source_size);
+		fs->setSourcePos(source_pos);
+		fs->setSourceForce(source_force);
+	}
+	else {std::cout << "ATTENZIONE: sorgente troppo grande!" << std::endl;}
 	fs->setGravity(gravity);
 
 	/**

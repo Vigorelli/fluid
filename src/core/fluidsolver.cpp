@@ -61,9 +61,12 @@ FluidSolver::FluidSolver(Grid* _grid)
 	setCGTolerance( sqrt( FLT_EPSILON ) );
 	
 	//source parameters
-//	setSourceSize(fdl::Vector3f(4.0, 4.0, 4.0));
-//	setSourcePos(fdl::Vector3f(0.0, 0.0, 0.0));
-//	setSourceForce(fdl::Vector3f(0.0, 2.0, 0.0));
+	fdl::Vector3f size_default = fdl::Vector3f(0.0, 0.0, 0.0);
+	fdl::Vector3f pos_default = fdl::Vector3f(0.0, 0.0, 0.0);
+	fdl::Vector3f force_default = fdl::Vector3f(0.0, 0.0, 0.0);
+	setSourceSize(size_default);
+	setSourcePos(pos_default);
+	setSourceForce(force_default);
 	
 	// define global forces
 //	setGravity(fdl::Vector3f(0.0, -9.8, 0.0));
@@ -93,6 +96,27 @@ void FluidSolver::setCGMaxIter(unsigned N) { maxiter_cg = N; }
 void FluidSolver::setSourceSize(fdl::Vector3f& size){ m_source_size = size; }
 void FluidSolver::setSourcePos(fdl::Vector3f& pos){ m_source_pos = pos; }
 void FluidSolver::setSourceForce(fdl::Vector3f& force){ m_source_force = force; }
+
+/**
+ * Check source doesn't exceed grid dims
+ */
+bool FluidSolver::checkSource(fdl::Vector3f& size, fdl::Vector3f& pos) {
+	if(m_gridX - (pos[0]+size[0]*0.5) < 0) {}
+	else {return false;}
+	if(pos[0] - size[0]*0.5 < 0) {}
+	else  {return false;}
+	if(m_gridY - (pos[1]+size[1]*0.5) < 0) {}
+	else {return false;}
+	if(pos[1] - size[1]*0.5 < 0) {}
+	else {return false;}
+	if(m_gridZ - (pos[2]+size[2]*0.5) < 0) {}
+	else {return false;}
+	if(pos[2] - size[2]*0.5 < 0) {}
+	else {return false;}
+
+	return true;
+
+}	
 	
 /**
  * Sets gravity force (direction and intensity).
@@ -154,7 +178,8 @@ void FluidSolver::step(float dt) {
 
 
 	// add density
-	addDensity(dt);
+	if ((m_source_size[0] + m_source_size[1] + m_source_size[2]) != 0) {addDensity(dt);}
+	else {INFO() << "  + No density source ..";}
 
 	// apply forces to velocity field
 	INFO() << "  + Adding forces ..";
@@ -178,9 +203,7 @@ void FluidSolver::step(float dt) {
  * Adds density source (with dimensions and position)
  *
  *
- * @param pos: position of source
- * @param size: size in the x, y and z directions
- * @param force: intensity and direction of initial force
+ * @param dt: time step
  */
 
 void FluidSolver::addDensity(float dt){

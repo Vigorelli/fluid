@@ -53,6 +53,7 @@ public:
 	void setSourceSize(fdl::Vector3f& );
 	void setSourcePos(fdl::Vector3f& );
 	void setSourceForce(fdl::Vector3f& );
+	bool checkSource(fdl::Vector3f&, fdl::Vector3f&);
 	
 	void setGravity(fdl::Vector3f&);
 
