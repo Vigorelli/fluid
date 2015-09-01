@@ -137,13 +137,13 @@ float FluidSolver::computeMaxTimeStep() const {
 }
 	
 	
-	/**
-	 * This is the main function for updating the fluid system. Input of zero or less
-	 * (which is the default) will trigger a call to compute the maximum time step
-	 * using computeMaxTimeStep.
-	 *
-	 * @param dt delta time value to step forward
-	 */
+/**
+ * This is the main function for updating the fluid system. Input of zero or less
+ * (which is the default) will trigger a call to compute the maximum time step
+ * using computeMaxTimeStep.
+ *
+ * @param dt delta time value to step forward
+ */
 void FluidSolver::step(float dt) {
 	if(dt <= 0){
 		dt = computeMaxTimeStep();
@@ -163,10 +163,9 @@ void FluidSolver::step(float dt) {
 	INFO() << "  + Performing projection step ..";
 	project(dt);
 
-
-	// add density
+	INFO() << "  + Adding density ..";
 	if ((m_source_size[0] + m_source_size[1] + m_source_size[2]) != 0) {addDensity(dt);}
-	else {INFO() << "  + No density source ..";}
+	else {INFO() << "    + No density source ..";}
 
 	// apply forces to velocity field
 	INFO() << "  + Adding forces ..";
@@ -180,15 +179,13 @@ void FluidSolver::step(float dt) {
 			}
 		}
 	}
-	
-	// diffuse(dt, 1.5);
-	
+
 	m_time += dt;
+	//TODO: it's important to write the time of each step when we save information!
 }
 
 /**
  * Adds density source (with dimensions and position)
- *
  *
  * @param dt: time step
  */
@@ -196,7 +193,6 @@ void FluidSolver::step(float dt) {
 void FluidSolver::addDensity(float dt){
 	float targetTemp = 28.5;
 	float rateDensity = 100.0f;
-	INFO() << "  + Updating densities ..";
 	Sample cell(dt*rateDensity,targetTemp,0);
 
 	for (int k=-m_source_size.z; k<=m_source_size.z; ++k) {			// z size component
@@ -393,7 +389,7 @@ void FluidSolver::project(float dt)
 	}
 	*/
 	
-	// TO-DO: Include smoke divergence control
+	// TODO: Include smoke divergence control
 	
 	// Construct new coefficient matrix
 	//constructMatrix(m_dx, dt, rho, true);
