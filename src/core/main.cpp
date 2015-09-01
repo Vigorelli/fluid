@@ -301,6 +301,9 @@ int main(int argc, char **argv)
 		fs->setSourcePos(source_pos);
 		fs->setSourceForce(source_force);
 	}
+	else {
+		INFO() << "Invalid source: using default values (= no source)";
+	}
 	fs->setGravity(gravity);
 
 	/**

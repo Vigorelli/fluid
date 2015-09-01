@@ -33,7 +33,7 @@ void SceneImporter::load(const std::string& filename)
 
 void SceneImporter::save(const std::string& filename)
 {
-    // Write property tree to XML file
+//	Write property tree to XML file
 	write_xml(filename, pt);
 }
 

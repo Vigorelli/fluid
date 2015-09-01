@@ -51,7 +51,6 @@ FluidSolver::FluidSolver(Grid* _grid)
 	m_APlusX.resize(m_numPoints);
 	m_APlusY.resize(m_numPoints);
 	m_APlusZ.resize(m_numPoints);
-	m_time = 0.0f;
 	
 	// initialize matrix/preconditioner
 	constructMatrix(m_dx, 0.1f);
@@ -60,16 +59,13 @@ FluidSolver::FluidSolver(Grid* _grid)
 	// initialize CG stopping criterion
 	setCGTolerance( sqrt( FLT_EPSILON ) );
 	
-	//source parameters
-	fdl::Vector3f size_default = fdl::Vector3f(0.0, 0.0, 0.0);
-	fdl::Vector3f pos_default = fdl::Vector3f(0.0, 0.0, 0.0);
-	fdl::Vector3f force_default = fdl::Vector3f(0.0, 0.0, 0.0);
-	setSourceSize(size_default);
-	setSourcePos(pos_default);
-	setSourceForce(force_default);
+	// source parameters
+	m_source_size = fdl::Vector3f(0.0, 0.0, 0.0);
+	m_source_pos = fdl::Vector3f(0.0, 0.0, 0.0);
+	m_source_force = fdl::Vector3f(0.0, 0.0, 0.0);
 	
 	// define global forces
-//	setGravity(fdl::Vector3f(0.0, -9.8, 0.0));
+	m_gravity = fdl::Vector3f(0.0, -9.8, 0.0);
 	
 	
 }
@@ -101,19 +97,14 @@ void FluidSolver::setSourceForce(fdl::Vector3f& force){ m_source_force = force; 
  * Check source doesn't exceed grid dims
  */
 bool FluidSolver::checkSource(fdl::Vector3f& size, fdl::Vector3f& pos) {
-	if(m_gridX - (pos[0]+size[0]*0.5) < 0) {}
-	else {return false;}
-	if(pos[0] - size[0]*0.5 < 0) {}
-	else  {return false;}
-	if(m_gridY - (pos[1]+size[1]*0.5) < 0) {}
-	else {return false;}
-	if(pos[1] - size[1]*0.5 < 0) {}
-	else {return false;}
-	if(m_gridZ - (pos[2]+size[2]*0.5) < 0) {}
-	else {return false;}
-	if(pos[2] - size[2]*0.5 < 0) {}
-	else {return false;}
 
+	int dims[3] = {m_gridX, m_gridY, m_gridZ};
+	for (int i = 0; i < 3; i++) {
+		if(dims[i] - (pos[i] + size[i]) < 0 || pos[i] - size[i]) < 0) {
+			return false;
+		}
+	}
+	
 	return true;
 
 }	
@@ -125,7 +116,7 @@ void FluidSolver::setGravity(fdl::Vector3f& gravity){ m_gravity = gravity; }
 
 /**
  * Uses the formulation of the maximum timestep from Foster and Fedkiw '01.<br/>
- * See: <a href="http://physbam.stanford.edu/~fedkiw/papers/stanford2001-02.pdf">Nick Foster Ronald Fedkiw. Practical Animation of Liquids. SIGGRAPH, pages 23-30, 2001.</a>
+ * See: <a href="http://physbam.stanford.edu/~fedkiw/papers/stanford2001-02.pdf"> Nick Foster Ronald Fedkiw. Practical Animation of Liquids. SIGGRAPH, pages 23-30, 2001.</a>
  *
  * @return the max timestep float for deltaT.
  */
@@ -141,10 +132,6 @@ float FluidSolver::computeMaxTimeStep() const {
 	
 	if (maxVelocity < 0.2) maxVelocity = 0.2f;
 	
-	//maxVelocity += m_gravity.getSquareRoot().length();
-	
-	//We suppose here you need the vector g defined in line 94. What about you?
-	//And you need to use sqrt, because getSquareRoot works on the components
 	maxVelocity += std::sqrt(g.length());
 	return (5.0*m_dx) / maxVelocity;
 }
@@ -160,8 +147,8 @@ float FluidSolver::computeMaxTimeStep() const {
 void FluidSolver::step(float dt) {
 	if(dt <= 0){
 		dt = computeMaxTimeStep();
-	}else{
-		//modificato: min al posto di max
+	}
+	else {
 		dt = std::min(dt, computeMaxTimeStep());
 	}
 		
