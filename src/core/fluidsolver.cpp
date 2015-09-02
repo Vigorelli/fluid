@@ -281,7 +281,7 @@ void FluidSolver::applyForces(float dt)
 
 	// Add the buoyancy force 
 	float ambient = 0;
-		//a and b "scaled" over g default (9.8), so we can use them with a generic gravity
+	// a and b "scaled" over g default (9.8), so we can use them with a generic gravity
 	float a = 0.0625f*0.5f/9.8;
 	float b = 0.025f/9.8;
 	for (int z=0; z<m_gridZ; ++z) {
