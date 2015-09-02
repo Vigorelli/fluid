@@ -75,16 +75,19 @@ FluidSolver::~FluidSolver()
 {
 }
 
+
 /**
  * Sets the tolerance for the residual at step n, \f$|r_n|_2 \leq \mathrm{tol}\f$,
  * in the Euclidean 2-norm.
  */
 void FluidSolver::setCGTolerance(float tol) { tol_cg = tol; }
 
+
 /**
  * Sets the maximum number of iterations for the conjugate gradients solver(s).
  */
 void FluidSolver::setCGMaxIter(unsigned N) { maxiter_cg = N; }
+
 
 /**
  * Set density source parameters: position and size.
@@ -92,6 +95,7 @@ void FluidSolver::setCGMaxIter(unsigned N) { maxiter_cg = N; }
 void FluidSolver::setSourceSize(fdl::Vector3f& size){ m_source_size = size; }
 void FluidSolver::setSourcePos(fdl::Vector3f& pos){ m_source_pos = pos; }
 void FluidSolver::setSourceForce(fdl::Vector3f& force){ m_source_force = force; }
+
 
 /**
  * Check source doesn't exceed grid dims
@@ -108,11 +112,13 @@ bool FluidSolver::checkSource(fdl::Vector3f& size, fdl::Vector3f& pos) {
 	return true;
 
 }	
+
 	
 /**
  * Sets gravity force (direction and intensity).
  */
 void FluidSolver::setGravity(fdl::Vector3f& gravity){ m_gravity = gravity; }
+
 
 /**
  * Uses the formulation of the maximum timestep from Foster and Fedkiw '01.<br/>
@@ -186,16 +192,18 @@ void FluidSolver::step(float dt) {
 	//TODO: it's important to write the time of each step when we save information!
 }
 
+
 /**
- * Adds density source (with dimensions and position)
+ * Adds density from source (with dimensions and position)
  *
  * @param dt: time step
+ *
  */
-
 void FluidSolver::addDensity(float dt){
-	float targetTemp = 28.5;
+	float targetTemp = 0;
 	float rateDensity = 100.0f;
-	Sample cell(dt*rateDensity,targetTemp,0);
+	float smokeDensity = 0;
+	Sample cell(dt*rateDensity, smokeDensity, targetTemp);
 
 	for (int k=-m_source_size.z; k<=m_source_size.z; ++k) {			// z size component
 		for (int i=-m_source_size.y; i<=m_source_size.y; ++i) {		// y size component
@@ -219,8 +227,6 @@ void FluidSolver::addDensity(float dt){
 	}
 }
 	
-
-
 
 /**
  * Computes and applies all body forces to the system. Currently this includes vorticity
@@ -349,7 +355,7 @@ void FluidSolver::project(float dt)
 			}
 		}
 	}
-	
+
 	// VARIABLE DENSITY
 	/*
 	float t1,t2;
@@ -473,15 +479,16 @@ void FluidSolver::project(float dt)
 	grid->swapVelocities();
 }
 
+
 /**
- * Appy diffusion by scaling the density values by an arbitrary constant rate. 
+ * Apply diffusion by scaling the density values by an arbitrary constant rate. 
  * The calculation used here is d = e^(-dt*rate).
  *
  * @param dt delta time value to step forward
  * @param rate the rate by which we will scale down the density
  *
  */
-void FluidSolver::diffuse(float dt, float rate)
+void FluidSolver::diffuse(float dt, float rate) // WHY DOES DENSITY DISAPPEAR?
 {
 	double exponent = -dt*rate;	// rate of density decay = e^-dt*[desired_rate]
 	float scale = (float)std::pow(E,exponent);
@@ -509,7 +516,7 @@ void FluidSolver::diffuseHeat(float dt, float rate)
 
 	// Separable gaussian convolution.
 	// This could be computed globally and re-used forever instead...
-	std::vector<double>* kernel = gaussianHeatKernel(9, (double) rate, dt);
+	std::vector<double>* kernel = gaussianHeatKernel(9, (double) rate, dt); // this function really doesn't work (cit. fluidsolver.h)
 	
 	int gauss_size = kernel->size();
 	int gauss_half = (int)gauss_size/2;
@@ -606,6 +613,7 @@ void FluidSolver::applyViscosity(float dt)
 	// grid->swapVelocities();
 }
 
+
 /**
  * Performs a semi-lagrangian particle back-trace from each cell center. 
  * 
@@ -675,6 +683,7 @@ void FluidSolver::advect(float dt)
 	
 	grid->swapVelocities();
 }
+
 
 // CONSTRUCT MATRIX USING CONSTANT DENSITY
 /**
@@ -816,6 +825,7 @@ void FluidSolver::constructMatrix(float dx, float dt, float rho, bool variable_d
 }
 */
 
+
 /**
  * constructPreconditioner currently makes the modified incomplete cholesky preconditioner 
  * for a preconditioned conjugate gradient solve of the positive semi-definite pressure 
@@ -917,6 +927,7 @@ float FluidSolver::cgSolve(const Vector& b, Vector& x)
 	return std::sqrt(rho);
 }
 
+
 /**
  * pcgSolve performs a preconditioned conjugate gradient solve for the pressure matrix 
  * given two vectors x and b.
@@ -928,11 +939,11 @@ float FluidSolver::cgSolve(const Vector& b, Vector& x)
  */
 float FluidSolver::pcgSolve(const Vector& b, Vector& x)
 {
-float M = inner_prod(x, b);
-if(M!=M){
-	std::cerr << "M is nan!" << std::endl;
-	exit(1);
-}
+	float M = inner_prod(x, b);
+	if(M!=M){
+		std::cerr << "M is nan!" << std::endl;
+		exit(1);
+	}
 
 	int k = 0;
 	float beta = 0;
@@ -948,7 +959,7 @@ if(M!=M){
 		std::cerr << "rho is nan!" << std::endl;
 		exit(1);
 	}
-	
+
 	while (k < maxiter_cg && rho > tolerance) {
 		if (k == 0) {
 			noalias(m_tempP) = m_tempZ;
@@ -968,7 +979,7 @@ if(M!=M){
 		rho = inner_prod(m_tempR, m_tempZ);
 		k++;
 	}
-	
+
 	INFO() << "  + PCG: Residual after " << k << " iterations : " << std::sqrt(rho);
 
 	return std::sqrt(rho);
@@ -1033,6 +1044,7 @@ void FluidSolver::axpy_prod(const Vector& x, Vector& y) const
 			+ m_APlusZ[i-m_slice] * x[i-m_slice];
 	}
 }
+
 
 /**
  * solvePreconditioner 
