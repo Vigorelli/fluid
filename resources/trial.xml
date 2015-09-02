@@ -1,0 +1,20 @@
+<scene>
+	<settings dt="0.1" dx="0.01">
+		<grid x="50" y="50" z="50" />
+		<png-out>true</png-out>
+		<df3-out>true</df3-out>
+		<grid-in>false</grid-in>
+		<output-prefix>density_export_</output-prefix>
+		<grid-prefix>grid_export_</output-prefix>
+		<xml-output-prefix>save.xml</xml-output-prefix>
+		<grid-inputfile></grid-inputfile>
+		<solver tolerance="1e-5" maxIterations="100" />
+		<max-step>1000</max-step>
+	</settings>
+	<source>
+		<pos x="-24.9" y="5.0" z="0.0" />
+		<size w="0.1" h="2.0" d="2.0" />
+		<force x="3.0" y="0.0" z="0.0" />
+	</source>
+	<field x="0.0" y="-9.8" z="0.0" />
+</scene>
