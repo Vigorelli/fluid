@@ -104,7 +104,7 @@ bool FluidSolver::checkSource(fdl::Vector3f& size, fdl::Vector3f& pos) {
 
 	int dims[3] = {m_gridX, m_gridY, m_gridZ};
 	for (int i = 0; i < 3; i++) {
-		if(dims[i] - (pos[i] + size[i]) < 0 || pos[i] - size[i] < 0) {
+		if((pos[i] + dims[i]/2 - size[i] < 0) || (pos[i] - dims[i]/2 + size[i] > 0)) {
 			return false;
 		}
 	}
