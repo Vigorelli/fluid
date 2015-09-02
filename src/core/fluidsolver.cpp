@@ -160,12 +160,11 @@ void FluidSolver::step(float dt) {
 	INFO() << "  + Apply forces ..";
 	applyForces(dt);
 
-	INFO() << "  + Performing projection step ..";
-	project(dt);
-
 	INFO() << "  + Adding density ..";
 	if ((m_source_size[0] + m_source_size[1] + m_source_size[2]) != 0) {addDensity(dt);}
-	else {INFO() << "    + No density source ..";}
+	else {
+		INFO() << "    + No density source ..";
+	}
 
 	// apply forces to velocity field
 	INFO() << "  + Adding forces ..";
@@ -179,6 +178,9 @@ void FluidSolver::step(float dt) {
 			}
 		}
 	}
+
+	INFO() << "  + Performing projection step ..";
+	project(dt);
 
 	m_time += dt;
 	//TODO: it's important to write the time of each step when we save information!
@@ -209,9 +211,9 @@ void FluidSolver::addDensity(float dt){
 				}
 				int dist = -std::max((int) std::sqrt(tmp)-1, 0);
 				grid->setDensity(dist + x + y * m_gridX + z * m_slice, cell);
-				grid->getForce(0)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.x;	//x initial force
-				grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.y;	//y initial force
-				grid->getForce(2)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.z;	//z initial force
+				grid->getForce(0)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.x;	//x initial "velocity"
+				grid->getForce(1)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.y;	//y initial "velocity"
+				grid->getForce(2)[dist + x + y * (m_gridX+1) + z * m_velSlice] = m_source_force.z;	//z initial "velocity"
 			}
 		}
 	}
@@ -279,7 +281,7 @@ void FluidSolver::applyForces(float dt)
 		}
 	}
 
-	// Add the buoyancy force 
+	// Add the buoyancy force (Boussinesq approximation)
 	float ambient = 0;
 	// a and b "scaled" over g default (9.8), so we can use them with a generic gravity
 	float a = 0.0625f*0.5f/9.8;
@@ -340,7 +342,7 @@ void FluidSolver::project(float dt)
 					continue;
 				}
 				m_divergence[pos] = 
-					( grid->getVelocity(0)[velIdx+1]			- grid->getVelocity(0)[velIdx]
+					( grid->getVelocity(0)[velIdx+1]		- grid->getVelocity(0)[velIdx]
 					+ grid->getVelocity(1)[velIdx+m_gridX+1]	- grid->getVelocity(1)[velIdx]
 					+ grid->getVelocity(2)[velIdx+m_velSlice]	- grid->getVelocity(2)[velIdx])
 					* inv_dx;
