@@ -60,7 +60,11 @@ public:
 	const Vector& getCurlMagnitude() const { return m_curlMagnitude; }
 	const Vector& getDivergence() const { return m_divergence; }
 	const Vector& getPressure() const { return m_pressure; }
-	
+    
+    float getDt() {return m_dt; }
+    float getTime() {return m_time; }
+	float getResidual() {return std::sqrt(m_tmp_residual); }
+    
 protected:
 	float computeMaxTimeStep() const;
 	void axpy_prod(const Vector& x, Vector& y) const;
@@ -117,7 +121,10 @@ private:
 	int m_slice;
 	int m_velSlice;
 	float m_time;
+    float m_dt;
 	float m_dx;
+	
+	float m_tmp_residual;
 	
 	// performs 1D convolution in place
 	template<class T>

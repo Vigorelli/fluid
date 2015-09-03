@@ -81,7 +81,7 @@ void PngExporter::exportDensity(int counter, std::string prefix, float* field, i
 			pngbuf[(j*xRes + i)*4+1] = (unsigned char)(val*255.0);	// G
 			pngbuf[(j*xRes + i)*4+2] = (unsigned char)(val*255.0);	// B
 			pngbuf[(j*xRes + i)*4+3] = 255;							// A
-			rows[j] = &pngbuf[(yRes-j-1) * xRes*4];
+			rows[j] = &pngbuf[(j) * xRes*4];
 		}
 	}
 	std::string filenamePNG = prefix + number + std::string(".png");

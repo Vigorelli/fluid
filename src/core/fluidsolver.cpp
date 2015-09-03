@@ -104,7 +104,7 @@ bool FluidSolver::checkSource(fdl::Vector3f& size, fdl::Vector3f& pos) {
 
 	int dims[3] = {m_gridX, m_gridY, m_gridZ};
 	for (int i = 0; i < 3; i++) {
-		if((pos[i] + dims[i]/2 - size[i] < 0) || (pos[i] - dims[i]/2 + size[i] > 0)) {
+		if((pos[i] + dims[i]/2 - size[i] <= 0) || (pos[i] - dims[i]/2 + size[i] >= 0)) {
 			return false;
 		}
 	}
@@ -187,7 +187,8 @@ void FluidSolver::step(float dt) {
 
 	INFO() << "  + Performing projection step ..";
 	project(dt);
-
+    
+    m_dt = dt;
 	m_time += dt;
 	//TODO: it's important to write the time of each step when we save information!
 }
@@ -407,7 +408,7 @@ void FluidSolver::project(float dt)
 	constructPreconditioner(rho);
 
 	// Perform linear solve
-	pcgSolve(m_divergence, m_pressure);
+	m_tmp_residual = pcgSolve(m_divergence, m_pressure);
 
 	// Apply the computed pressure gradients [CONSTANT DENSITY]
 	float scale = dt / (rho * m_dx);

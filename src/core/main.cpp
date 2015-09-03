@@ -117,6 +117,10 @@ int main(int argc, char **argv)
 	double cg_tol = 1e-5;			 	// conjugate gradient tolerance
 	int cg_max_iter = 100;				// conjugate gradient max iterations
 	int max_step = 1000;				// max number of fluidsolver step
+    
+    float dt_save = 0;
+    float time_save = 0;
+	float residual = 0;
 
 	/**
 	 * Source default value
@@ -348,6 +352,9 @@ int main(int argc, char **argv)
 	 * Calling the function step of fluidsolver, to evolve the system, max_step times
 	 * Exporting in .grid, .png (if enabled), .df3 (if enabled)
 	 */
+    std::ofstream time_file;
+    time_file.open("times.txt");
+	time_file << "Step		Time		dt		Residual" << std::endl;
 	for(int count=0; count<max_step; count++){
 
 		/**
@@ -366,8 +373,12 @@ int main(int argc, char **argv)
 		gridOut->start(*macGrid);
 
 		fs->step(dt);
+        dt_save = fs->getDt();
+        time_save = fs->getTime();
+		residual = fs->getResidual();
+		time_file << count << ":		" << time_save << "		" << dt << "		" << residual << std::endl;
 	}
-
+    time_file.close();
 
 	/**
 	 * Deleting all pointers
