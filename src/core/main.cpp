@@ -376,7 +376,7 @@ int main(int argc, char **argv)
         dt_save = fs->getDt();
         time_save = fs->getTime();
 		residual = fs->getResidual();
-		time_file << count << ":		" << time_save << "		" << dt << "		" << residual << std::endl;
+		time_file << count << ":		" << time_save << "		" << dt_save << "		" << residual << std::endl;
 	}
     time_file.close();
 
