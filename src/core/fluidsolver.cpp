@@ -306,16 +306,16 @@ void FluidSolver::applyForces(float dt)
 				const Sample topZ = grid->getDensity((x+0.5f)*m_dx, (y+0.5f)*m_dx, z*m_dx);
 				
 				if (x != 0 && !grid->isSolid(pos-1)) 
-					grid->getForce(0)[velIdx] += (-a*topX.density + b*(topX.temperature - ambient))*m_gravity.x;
+					grid->getForce(0)[velIdx] += -(-a*topX.density + b*(topX.temperature - ambient))*m_gravity.x;
 					grid->getForce(0)[velIdx] += (m_vorticityConfinementForce[pos].x + m_vorticityConfinementForce[pos-1].x) * 0.5f;
 
 				if (y!= 0 && !grid->isSolid(pos-m_gridX)) {
-					grid->getForce(1)[velIdx] += (-a*topY.density + b*(topY.temperature - ambient))*m_gravity.y;
+					grid->getForce(1)[velIdx] += -(-a*topY.density + b*(topY.temperature - ambient))*m_gravity.y;
 					grid->getForce(1)[velIdx] += (m_vorticityConfinementForce[pos].y + m_vorticityConfinementForce[pos-m_gridX].y) * 0.5f;
 				}
 
 				if (z != 0 && !grid->isSolid(pos-m_slice)) 
-					grid->getForce(2)[velIdx] += (-a*topZ.density + b*(topZ.temperature - ambient))*m_gravity.z;
+					grid->getForce(2)[velIdx] += -(-a*topZ.density + b*(topZ.temperature - ambient))*m_gravity.z;
 					grid->getForce(2)[velIdx] += (m_vorticityConfinementForce[pos].z + m_vorticityConfinementForce[pos-m_slice].z) * 0.5f;
 			}
 		}
