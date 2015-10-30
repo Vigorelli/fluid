@@ -412,13 +412,14 @@ void FluidSolver::project(float dt)
 
 	// Apply the computed pressure gradients [CONSTANT DENSITY]
 	float scale = dt / (rho * m_dx);
+    int velIdx;
 	for (int z=0; z<m_gridZ; ++z) {
 		int pos = z * m_slice;
 		for (int y=0; y<m_gridY; ++y) {
 			for (int x=0; x<m_gridX; ++x, ++pos) {
 				if (grid->isSolid(pos)) 
 					continue;
-				int velIdx = x + y * (m_gridX+1) + z * m_velSlice;
+				velIdx = x + y * (m_gridX+1) + z * m_velSlice;
 				if (x < m_gridX-1 && !grid->isSolid(pos + 1)) {
 					grid->getLastVelocity(0)[velIdx+1] = 
 						grid->getVelocity(0)[velIdx+1] + (m_pressure[pos+1] - m_pressure[pos]) * scale;
@@ -626,7 +627,9 @@ void FluidSolver::applyViscosity(float dt)
 void FluidSolver::advect(float dt)
 {
 	// Advect the density field 	
-	for (int z=0; z<m_gridZ; ++z) {
+    fdl::Point3 p;
+    fdl::Vector3 vel;
+    for (int z=0; z<m_gridZ; ++z) {
 		int pos = z*m_slice;
 		for (int y=0; y<m_gridY; ++y) {
 			for (int x=0; x<m_gridX; ++x, ++pos) {
@@ -636,8 +639,10 @@ void FluidSolver::advect(float dt)
 				if (grid->isSolid(pos)) {
 					continue;
 				}
-				fdl::Point3 p((x+0.5f)*m_dx, (y+0.5f)*m_dx, (z+0.5f)*m_dx);
-				fdl::Vector3 vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
+                p.x = (x+0.5f)*m_dx;
+                p.y = (y+0.5f)*m_dx;
+                p.z = (z+0.5f)*m_dx;
+				vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
 				p += vel;
 				grid->setLastDensity(pos, grid->getDensity(p.x, p.y, p.z));
 			}
@@ -656,25 +661,31 @@ void FluidSolver::advect(float dt)
 					continue;
 
 				// Advect X velocities
-				if (x < m_gridX-1 && !grid->isSolid(pos + 1)) {					
-					fdl::Point3 p((x+1.0f)*m_dx, (y+.5f)*m_dx, (z+0.5f)*m_dx);
-					fdl::Vector3 vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
+				if (x < m_gridX-1 && !grid->isSolid(pos + 1)) {
+                    p.x = (x+1.0f)*m_dx;
+                    p.y = (y+0.5f)*m_dx;
+                    p.z = (z+0.5f)*m_dx;
+					vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
 					p += vel;
 					grid->getLastVelocity(0)[velIdx+1] = grid->getVelocity(p).x;
 				}
 
 				// Advect Y velocities
 				if (y < m_gridY-1 && !grid->isSolid(pos + m_gridX)) {
-					fdl::Point3 p((x+0.5f)*m_dx, (y+1.0f)*m_dx, (z+0.5f)*m_dx);
-					fdl::Vector3 vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
+                    p.x = (x+0.5f)*m_dx;
+                    p.y = (y+1.0f)*m_dx;
+                    p.z = (z+0.5f)*m_dx;
+					vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
 					p += vel;
 					grid->getLastVelocity(1)[velIdx+m_gridX+1] = grid->getVelocity(p).y;
 				}
 
 				// Advect Z velocities
 				if (z < m_gridZ-1 && !grid->isSolid(pos + m_slice)) {
-					fdl::Point3 p((x+0.5f)*m_dx, (y+0.5f)*m_dx, (z+1.0f)*m_dx);
-					fdl::Vector3 vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
+                    p.x = (x+0.5f)*m_dx;
+                    p.y = (y+0.5f)*m_dx;
+                    p.z = (z+1.0f)*m_dx;
+					vel = grid->getVelocity(p + grid->getVelocity(p) * (-dt * 0.5f)) * -dt;
 					p += vel;
 					grid->getLastVelocity(2)[velIdx+m_velSlice] = grid->getVelocity(p).z;
 				}
@@ -706,14 +717,19 @@ void FluidSolver::constructMatrix(float dx, float dt, float rho)
 	m_APlusY *= 0.0f;
 	m_APlusZ *= 0.0f;
 	
+    bool fluid;
+    bool fluidRight;
+	bool fluidBelow;
+	bool fluidBehind;
+    
 	const float scale = dt / (rho * dx * dx);
 	for (int z=0, pos=0; z<m_gridZ; ++z) {
 		for (int y=0; y<m_gridY; ++y) {
 			for (int x=0; x<m_gridX; ++x, ++pos) {
-				bool fluid = !grid->isSolid(pos);
-				bool fluidRight = (x != m_gridX-1) && !grid->isSolid(pos+1);
-				bool fluidBelow = (y != m_gridY-1) && !grid->isSolid(pos+m_gridX);
-				bool fluidBehind = (z != m_gridZ-1) && !grid->isSolid(pos+m_slice);
+				fluid = !grid->isSolid(pos);
+                fluidRight = (x != m_gridX-1) && !grid->isSolid(pos+1);
+				fluidBelow = (y != m_gridY-1) && !grid->isSolid(pos+m_gridX);
+				fluidBehind = (z != m_gridZ-1) && !grid->isSolid(pos+m_slice);
 
 				if (fluid && fluidRight) {
 					m_ADiag[pos] += scale;
@@ -906,7 +922,9 @@ float FluidSolver::cgSolve(const Vector& b, Vector& x)
 	axpy_prod(x, m_tempR);
 	m_tempR = b - m_tempR;
 	rho = inner_prod(m_tempR, m_tempR);
-
+    
+    float alpha;
+    
 	while (k < maxiter_cg && rho > tolerance) {
 		if (k == 0) {
 			noalias(m_tempP) = m_tempR;
@@ -916,7 +934,7 @@ float FluidSolver::cgSolve(const Vector& b, Vector& x)
 		}
 		
 		axpy_prod(m_tempP, m_tempW);
-		float alpha = rho / inner_prod(m_tempP, m_tempW);
+		alpha = rho / inner_prod(m_tempP, m_tempW);
 		noalias(x) += alpha * m_tempP;
 		noalias(m_tempR) -= alpha * m_tempW;
 		lastRho = rho;
@@ -960,7 +978,9 @@ float FluidSolver::pcgSolve(const Vector& b, Vector& x)
 		std::cerr << "rho is nan!" << std::endl;
 		exit(1);
 	}
-
+    
+    float denom;
+    float alpha;
 	while (k < maxiter_cg && rho > tolerance) {
 		if (k == 0) {
 			noalias(m_tempP) = m_tempZ;
@@ -970,8 +990,8 @@ float FluidSolver::pcgSolve(const Vector& b, Vector& x)
 		}
 
 		axpy_prod(m_tempP, m_tempW);
-		float denom = inner_prod(m_tempP, m_tempW);
-		float alpha = rho / denom;
+		denom = inner_prod(m_tempP, m_tempW);
+		alpha = rho / denom;
 		noalias(x) += alpha * m_tempP;
 		noalias(m_tempR) -= alpha * m_tempW;
 
@@ -998,8 +1018,9 @@ float FluidSolver::pcgSolve(const Vector& b, Vector& x)
  */
 void FluidSolver::axpy_prod(const Vector& x, Vector& y) const
 {
+    float result;
 	for (int i=0; i<m_slice; ++i) {
-		float result = m_ADiag[i] * x[i]
+		result = m_ADiag[i] * x[i]
 					+ m_APlusX[i] * x[i+1]
 					+ m_APlusY[i] * x[i+m_gridX]
 					+ m_APlusZ[i] * x[i+m_slice];
@@ -1017,7 +1038,7 @@ void FluidSolver::axpy_prod(const Vector& x, Vector& y) const
 	}
 	
 	for (int i=m_numPoints-m_slice; i<m_numPoints; ++i) {
-		float result = m_ADiag[i] * x[i]
+		result = m_ADiag[i] * x[i]
 					+ m_APlusX[i-1] * x[i-1]
 					+ m_APlusY[i-m_gridX] * x[i-m_gridX]
 					+ m_APlusZ[i-m_slice] * x[i-m_slice];
@@ -1056,12 +1077,13 @@ void FluidSolver::axpy_prod(const Vector& x, Vector& y) const
  */
 void FluidSolver::solvePreconditioner(const Vector& b, Vector& x)
 {
+    float temp;
 	// Solve lower triangular system
 	for (int i=0; i<m_numPoints; ++i) {
 		if (grid->isSolid(i))
 			continue;
 			
-		float temp = b[i];
+		temp = b[i];
 		if (i > 0) {
 			temp -= m_APlusX[i-1] * m_precond[i-1] * m_tempQ[i-1];
 		}
@@ -1080,7 +1102,7 @@ void FluidSolver::solvePreconditioner(const Vector& b, Vector& x)
 		if (grid->isSolid(i))
 			continue;
 			
-		float temp = m_tempQ[i];
+		temp = m_tempQ[i];
 		if (i+1 < m_numPoints) {
 			temp -= m_APlusX[i] * m_precond[i] * x[i+1];
 		}

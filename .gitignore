@@ -15,5 +15,6 @@
 # Build directory
 build/*
 
-#Desktop service files
+#Desktop service files and XCode project
 *.DS_Store
+Fluid/*
